@@ -1,4 +1,4 @@
-import random, discord
+import random, discord, datetime
 
 class SnakeGame():
     def __init__(self):
@@ -189,3 +189,38 @@ def VerifyMatriz(value):
         return "😃"
     else:
         return None
+
+async def GetLastSnakeMessageId(client, channel_id):
+
+    channel = client.get_channel(channel_id)
+    async for message in channel.history(limit=10):
+        if message.author.id == client.user.id and "⬜" in message.content and "😃" in message.content:
+            return message.id
+
+def GetCurrentTime(wait_time=5):
+    current_time = datetime.datetime.now()
+    minutos = current_time.minute
+    hora = current_time.hour
+    hora -= 3 #Diferent time zones
+    if( (minutos + wait_time) >= 60):
+        minutos = (minutos + wait_time) - 60
+        hora += 1
+        if(hora >= 24):
+            hora -= 24
+    else:
+        minutos += wait_time
+
+    return [hora, minutos]
+
+async def StringOfMatriz(game):
+
+    tempo = GetCurrentTime(wait_time=5)
+
+    response_matriz = "Score: " + str(game.Length_of_snake - 1) + '\n'
+    for x in range(game.gridSize):
+        for y in range(game.gridSize):
+            response_matriz += VerifyMatriz(game.matriz[x][y]) + '  '
+        response_matriz += '\n'
+
+    ret = "O jogo vai progredir as " + str(tempo[0]) + ':' + str(tempo[1]) + '\n' + response_matriz
+    return ret
