@@ -31,7 +31,7 @@ SnakeDict = {
     "snake_emojis": ["⬆" , "⬇" , "➡", "⬅"],
     "snakeChannelId": 825497428693745744 #jogo-da-cobrinha channel id
 }
-wait_time = 5 #minutes
+wait_time = 2 #minutes
 
 
 #-------------------------------------------------------------------------------------------

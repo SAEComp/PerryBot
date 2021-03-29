@@ -197,7 +197,7 @@ async def GetLastSnakeMessageId(client, channel_id):
         if message.author.id == client.user.id and "⬜" in message.content and "😃" in message.content:
             return message.id
 
-def GetCurrentTime(wait_time=5):
+def GetCurrentTime(wait_time=2):
     current_time = datetime.datetime.now()
     minutos = current_time.minute
     hora = current_time.hour
@@ -214,7 +214,7 @@ def GetCurrentTime(wait_time=5):
 
 async def StringOfMatriz(game):
 
-    tempo = GetCurrentTime(wait_time=5)
+    tempo = GetCurrentTime(wait_time=2)
 
     response_matriz = "Score: " + str(game.Length_of_snake - 1) + '\n'
     for x in range(game.gridSize):
