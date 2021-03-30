@@ -43,12 +43,8 @@ def _check_if_exist(conn, cur, text):
 def add_random_text(text):
     conn, cur = _connect_to_database()
     
-    try:
-        if not _check_if_exist(conn,cur,text): 
-            raise psycopg2.Error
-    except:
-        raise
-
+    if not _check_if_exist(conn,cur,text): 
+        raise psycopg2.Error
 
     try:
         cur.execute("INSERT INTO RANDOM_TEXT(TEXT) VALUES (%s);", (text,))

@@ -205,8 +205,6 @@ def GetCurrentTime(wait_time=2):
     if( (minutos + wait_time) >= 60):
         minutos = (minutos + wait_time) - 60
         hora += 1
-        if(hora >= 24):
-            hora -= 24
     else:
         minutos += wait_time
 

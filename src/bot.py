@@ -427,11 +427,14 @@ async def HandleRandomEvents(ctx, *args):
         await ctx.channel.send(response)
 
     #list all the messages ###MUST BE USED WITH CAUTION###
-    elif(largs[0] == "list" and ctx.author.name == "Franreno"):
-        all_text = get_all_text()
-        for text in all_text:
-            await ctx.channel.send(text[0])
-
+    elif(largs[0] == "list"):
+        flag = False
+        for role in ctx.author.roles: 
+            if role.name == "SaeComp": flag = True
+        if(flag == True):
+            all_text = get_all_text()
+            for text in all_text:
+                await ctx.channel.send(text[0])
     else:
         response = "Formato errado\n    ->%random: para uma mensagem aleatoria\n    ->%random add [mensagem]: adiciona a mensagem digitada\n    ->%random remove [mensagem]: remove a mensagem digitada"
         await ctx.channel.send(response)
