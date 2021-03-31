@@ -70,7 +70,6 @@ async def VerifySnakeGame(game):
     #mandar uma nova mensagem com a matriz atualizada, e os emojis de novo
 
     #verify if the message had any added reactions
-    print(wait_time)
     flag = False
     for reaction in SnakeDict["reactionsCounter"]:
         if reaction != 0:
@@ -131,7 +130,6 @@ async def HandleSnakeGame(ctx, *args):
             global wait_time
             wait_time = tempo
 
-        print(wait_time)
         response_matriz = await StringOfMatriz(game,wait_time)
         
         message = await ctx.channel.send(response_matriz)
