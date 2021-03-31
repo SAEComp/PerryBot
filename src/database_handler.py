@@ -94,16 +94,62 @@ def get_all_text():
     _disconnect_from_database(conn, cur)
     return querry_result
 
-# def check_if_exist(text):
-#     conn, cur = _connect_to_database()
-#     try:
-#         cur.execute("SELECT * FROM RANDOM_TEXT WHERE TEXT = %s;", (text,))
-#     except:
-#         print("Error getting text from data base!")
-#         raise
-#     querry_result = cur.fetchone()
-#     _disconnect_from_database(conn, cur)
-#     if(querry_result is None):
-#         return False
-#     else:
-#         return True
+def add_snake_game_values(gamevariables):
+    #gamevariables is a list of
+    #[game.matrix, game.snakehead, game.snakelist, game.food]
+    #[6x6 matrix , [x,y] , [[x,y] , [x,y] , ...] , [x,y] ]
+
+    t_gamevariables = tuple(gamevariables) #creating a tuple to handle the input
+
+    conn, cur = _connect_to_database()
+    try:
+        cur.execute("INSERT INTO SNAKE_DATA(s_DATA) VALUES (%s);", (t_gamevariables,))
+    except:
+        print("Error adding snake's value to database")
+        _disconnect_from_database(conn, cur)
+        raise
+    _disconnect_from_database(conn, cur, commit=True)
+
+
+def get_snake_game_values():
+    conn,cur = _connect_to_database()
+
+    try:
+        cur.execute("SELECT * FROM SNAKE_DATA;")
+
+    except:
+        print("Error getting snake data from data base!")
+        raise
+
+    querry_result = cur.fetchone()[0]
+    _disconnect_from_database(conn, cur)
+    return querry_result
+
+def remove_snake_data():
+    conn,cur = _connect_to_database()
+
+    try:
+        cur.execute("DELETE FROM SNAKE_DATA;")
+    except:
+        _disconnect_from_database(conn, cur)
+        raise 
+    _disconnect_from_database(conn, cur, commit=True)
+
+def update_snake_data(gamevariables):
+    conn,cur = _connect_to_database()
+
+    t_gamevariables = tuple(gamevariables) #creating a tuple to handle the input
+
+    try:
+        
+        try:
+            cur.execute("DELETE FROM SNAKE_DATA;")#if there isn't a value in the databse
+        except:
+            pass
+
+        cur.execute("INSERT INTO SNAKE_DATA(s_DATA) VALUES (%s);", (t_gamevariables,))
+    except:
+        print("Error adding snake's value to database")
+        _disconnect_from_database(conn, cur)
+        raise
+    _disconnect_from_database(conn, cur, commit=True)

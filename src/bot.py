@@ -31,7 +31,7 @@ SnakeDict = {
     "snake_emojis": ["⬆" , "⬇" , "➡", "⬅"],
     "snakeChannelId": 825497428693745744 #jogo-da-cobrinha channel id
 }
-wait_time = 2 #minutes
+wait_time = 120 #minutes
 
 
 #-------------------------------------------------------------------------------------------
@@ -63,13 +63,14 @@ async def SearchForTheList():
 
 #-------------------------------------------------------------------------------------------
 
-@tasks.loop(minutes=wait_time)
+@tasks.loop(seconds=wait_time)
 async def VerifySnakeGame(game):
     #ver se teve reacao na mensagem
     #ver a reacao que foi mais votada
     #mandar uma nova mensagem com a matriz atualizada, e os emojis de novo
 
     #verify if the message had any added reactions
+    print(wait_time)
     flag = False
     for reaction in SnakeDict["reactionsCounter"]:
         if reaction != 0:
@@ -103,7 +104,7 @@ async def VerifySnakeGame(game):
         SnakeDict["reactionsCounter"] = [0 for _ in range(len(SnakeDict["reactionsCounter"]))]
         
         #get the new matrix and send it
-        response_matriz = await StringOfMatriz(game)
+        response_matriz = await StringOfMatriz(game,wait_time)
 
         message = await channel.send(response_matriz)
         SnakeDict["lastSnakeMessageId"] = message.id
@@ -113,7 +114,7 @@ async def VerifySnakeGame(game):
     else:
         try:
             message = await channel.fetch_message(SnakeDict["lastSnakeMessageId"])
-            response_matriz = await StringOfMatriz(game)
+            response_matriz = await StringOfMatriz(game,wait_time)
             await message.edit(content=response_matriz)
         except:
             pass
@@ -124,8 +125,14 @@ async def VerifySnakeGame(game):
 async def HandleSnakeGame(ctx, *args):
     if VerifySnakeGame.is_running() == False:
         game = SnakeGame()
+        
+        if len(args) != 0:
+            tempo = int(args[0])
+            global wait_time
+            wait_time = tempo
 
-        response_matriz = await StringOfMatriz(game)
+        print(wait_time)
+        response_matriz = await StringOfMatriz(game,wait_time)
         
         message = await ctx.channel.send(response_matriz)
         SnakeDict["lastSnakeMessageId"] = message.id
@@ -133,6 +140,7 @@ async def HandleSnakeGame(ctx, *args):
             await message.add_reaction(emoji)
 
         VerifySnakeGame.start(game) #comeca a função VerifySnakeGame
+        VerifySnakeGame.change_interval(seconds=wait_time)
     else:
         response = "Jogo já em andamento!"
         await ctx.channel.send(response)
@@ -143,6 +151,18 @@ async def HandleStopSnakeGame(ctx,*args):
     VerifySnakeGame.stop()
     response = "Jogo terminado!\n"
     await ctx.channel.send(response)
+#-------------------------------------------------------------------------------------------
+@client.command(name="changetime")
+async def ChangeWaitTime(ctx,*args):
+    if(len(args) != 0):
+        tempo = int(args[0])
+        global wait_time
+        wait_time = tempo
+        VerifySnakeGame.change_interval(seconds=wait_time)
+        response = "Tempo mudado para " + str(wait_time) + " segundos."
+        await ctx.channel.send(response)
+    else:
+        await ctx.channel.send("Erro!\n%changetime <tempo>")
 #-------------------------------------------------------------------------------------------
 
 @client.event

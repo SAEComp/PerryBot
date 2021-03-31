@@ -177,6 +177,13 @@ class SnakeGame():
         self.matriz[y_snake][x_snake] = self.cod_snake_head
 
 
+    def ReloadSaveState(self, loaded_save_state):
+        self.matriz = loaded_save_state[1]
+        # self.snake_List = loaded_save_state[2]
+        # self.foodx = loaded_save_state[3][1]
+        # self.foodx = loaded_save_state[3][0]
+
+
 
 def VerifyMatriz(value):
     if value == 0:
@@ -197,7 +204,7 @@ async def GetLastSnakeMessageId(client, channel_id):
         if message.author.id == client.user.id and "⬜" in message.content and "😃" in message.content:
             return message.id
 
-def GetCurrentTime(wait_time=2):
+def GetCurrentTime(wait_time):
     current_time = datetime.datetime.now()
     minutos = current_time.minute
     hora = current_time.hour
@@ -210,9 +217,9 @@ def GetCurrentTime(wait_time=2):
 
     return [hora, minutos]
 
-async def StringOfMatriz(game):
+async def StringOfMatriz(game,wait_time):
 
-    tempo = GetCurrentTime(wait_time=2)
+    # tempo = GetCurrentTime(wait_time)
 
     response_matriz = "Score: " + str(game.Length_of_snake - 1) + '\n'
     for x in range(game.gridSize):
@@ -220,5 +227,66 @@ async def StringOfMatriz(game):
             response_matriz += VerifyMatriz(game.matriz[x][y]) + '  '
         response_matriz += '\n'
 
-    ret = "O jogo vai progredir as " + str(tempo[0]) + ':' + str(tempo[1]) + '\n' + response_matriz
+    ret = "O jogo vai progredir em " + str(wait_time) + " segundos\n" + response_matriz
     return ret
+
+def GetSnakeValuesBack(save_state):   
+    #transform string of matriz back to a real matriz
+    gridSize = int(save_state[1])
+    string_matriz = save_state[2]
+    string_snakeList = save_state[3]
+    string_food = save_state[4]
+    
+    matriz = []
+    for x in range(gridSize):
+        helper = []
+        for y in range(gridSize):
+            helper.append(int(string_matriz[x*gridSize+y]))
+        matriz.append(helper)
+    
+    #need to get the snake list back
+    list_snakeList = string_snakeList.split(' ')
+    snakeList = []
+    helper = []
+    for x in range(len(list_snakeList)-1):
+        print(list_snakeList[x][0])
+        helper.append(int(list_snakeList[x][0]))
+        helper.append(int(list_snakeList[x][1]))
+        snakeList.append(helper)
+        helper = []
+
+    #need to get the food back
+    food_pos = []
+    food_pos.append(int(string_food[0]))
+    food_pos.append(int(string_food[2]))
+
+    return [gridSize, matriz, snakeList, food_pos]
+
+
+def CreateSaveState(game):
+    save_state = []
+    
+    #create a matrix instance to save
+    string_matriz = str()
+    for x in range(game.gridSize):
+        for y in range(game.gridSize):
+            string_matriz += str(game.matriz[x][y])
+
+    #Create a snakelist instance to save
+    snakeList = game.snake_List
+    string_snakeList = str()
+    if(len(snakeList) != 0):
+        for x in range(len(snakeList)):
+            string_snakeList += str(snakeList[x][0])
+            string_snakeList += str(snakeList[x][1]) + ' '
+
+    #food
+    string_food = str(game.foodx) + ' ' + str(game.foody)
+    
+    save_state.append(1) #game_state: 1 is running, 0 not running
+    save_state.append(game.gridSize) #matrix grid size
+    save_state.append(string_matriz) #matrix in one line
+    save_state.append(string_snakeList) #position of snake
+    save_state.append(string_food) #pos of food
+
+    return save_state
