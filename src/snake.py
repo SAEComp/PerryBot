@@ -33,7 +33,7 @@ class SnakeGame():
         self.foody = random.randrange(0, self.gridSize - self.cellSize)
 
         #spawna o alimento
-        if self.x_snake == self.foodx and self.y_snake == self.foody:
+        if self.x_snake == self.foodx and self.y_snake == self.foody and self.CheckWinState() != True:
             flagOk = False
 
             while not flagOk:
@@ -96,7 +96,7 @@ class SnakeGame():
             if x == snake_Head:
                 game_over = True
                 self.perderJogo()
-                return False
+                return False, "lost"
     
         
         #desenha o fundo
@@ -124,7 +124,7 @@ class SnakeGame():
                 self.foody = random.randrange(0, self.gridSize - self.cellSize)
                 
                 for body in self.snake_List:
-                    if body[0] == self.foodx and body[1] == self.foody: 
+                    if body[0] == self.foodx and body[1] == self.foody and self.CheckWinState() != True: 
                         flagOk = False
                         break
                     else:
@@ -132,7 +132,13 @@ class SnakeGame():
                     
             self.Length_of_snake += 1
             self.setAlimento(self.foodx,self.foody)
-        return True
+
+
+        final_flag = self.CheckWinState()
+        if(final_flag == True):
+            return final_flag, "won"
+
+        return True, None
 
     def perderJogo(self):
         print("Perdestes?!?!?")
@@ -182,6 +188,20 @@ class SnakeGame():
         # self.snake_List = loaded_save_state[2]
         # self.foodx = loaded_save_state[3][1]
         # self.foodx = loaded_save_state[3][0]
+    
+    def CheckWinState(self):
+        count = 0
+        for steps in self.matriz:
+            for piece in steps:
+                if piece == 0:
+                    count += 1
+                
+        if (count == 0):
+            return True
+        
+        return False
+
+
 
 
 

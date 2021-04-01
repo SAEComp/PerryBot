@@ -96,7 +96,7 @@ async def VerifySnakeGame(game):
         elif(best_move == 3):
             move = 'a'
 
-        game_state = game.update(move) #Make the move
+        game_state, state = game.update(move) #Make the move
 
         if(game_state == False): #check the game state
             VerifySnakeGame.stop()
@@ -104,6 +104,13 @@ async def VerifySnakeGame(game):
             await channel.send(lose_response)
             return
     
+        if state == "won":
+            VerifySnakeGame.stop()
+            won_response = "Jogo acabou, você ganhou parabéns!!\nScore: " + str(game.Length_of_snake - 1)
+            await channel.send(won_response)
+            return
+
+
         #clear the reaction counter
         SnakeDict["reactionsCounter"] = [0 for _ in range(len(SnakeDict["reactionsCounter"]))]
         
