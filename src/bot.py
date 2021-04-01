@@ -328,7 +328,7 @@ async def RoleManipulation(ctx, *, args):
         await ctx.channel.send(response_at_channel)
 
         channel = client.get_channel(escolher_roles_id)
-        embed = discord.Embed(title=str(role_name.upper()), description="Reaja a esta mensagem caso você seja de fora da Eng. Comp.")
+        embed = discord.Embed(title=str(role_name.upper()), description="Reaja a esta mensagem para ganhar a role")
         message = await channel.send(embed=embed)
         await message.add_reaction(random.choice(random_emojis))
 
