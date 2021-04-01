@@ -23,6 +23,8 @@ lastTwoRandomMessages = ["Gosto mais da Ferb do que Phineas", "SAEComp melhor SA
 #global roles variables
 random_emojis = ["🖐" , "👌" , "🤑" , "🍕" , "🍣" , "🍷" , "🥕" , "✈" , "🎈" , "🎃" , "🖖" , "👋" , "🙏"]
 escolher_roles_id = 824803055345336330
+fora_da_ec_message_id = 812769812861157410-827222773385789460
+
 
 #global snakeGame variables
 SnakeDict = {
@@ -181,6 +183,22 @@ async def on_raw_reaction_add(payload):
 
         await member.add_roles(role_storage)
 
+
+    if payload.message_id == fora_da_ec_message_id:
+        guild = client.get_guild(payload.guild_id)
+        all_the_roles = await guild.fetch_roles()
+        member = guild.get_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        embeds = message.embeds
+        role_name = embeds[0].title
+        for role in all_the_roles:
+            if role.name.lower() == role_name.lower():
+                role_storage = role
+
+        await member.add_roles(role_storage)
+
+
     #snake game related
     if payload.message_id == SnakeDict["lastSnakeMessageId"] and payload.user_id != client.user.id:
         channel = client.get_channel(payload.channel_id)
@@ -233,6 +251,23 @@ async def on_raw_reaction_remove(payload):
                 role_storage = role
 
         await member.remove_roles(role_storage)
+
+
+    if payload.message_id == fora_da_ec_message_id:
+        guild = client.get_guild(payload.guild_id)
+        all_the_roles = await guild.fetch_roles()
+        member = guild.get_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        embeds = message.embeds
+        role_name = embeds[0].title
+        for role in all_the_roles:
+            if role.name.lower() == role_name.lower():
+                role_storage = role
+
+        await member.remove_roles(role_storage)
+
+
 
     #snake game related
     if payload.message_id == SnakeDict["lastSnakeMessageId"] and payload.user_id != client.user.id:
@@ -291,7 +326,7 @@ async def RoleManipulation(ctx, *, args):
         await ctx.channel.send(response_at_channel)
 
         channel = client.get_channel(escolher_roles_id)
-        embed = discord.Embed(title=str(role_name.upper()), description="Reaja a esta mensagem para ganhar a role")
+        embed = discord.Embed(title=str(role_name.upper()), description="Reaja a esta mensagem caso você seja de fora da Eng. Comp.")
         message = await channel.send(embed=embed)
         await message.add_reaction(random.choice(random_emojis))
 
