@@ -23,7 +23,10 @@ lastTwoRandomMessages = ["Gosto mais da Ferb do que Phineas", "SAEComp melhor SA
 #global roles variables
 random_emojis = ["🖐" , "👌" , "🤑" , "🍕" , "🍣" , "🍷" , "🥕" , "✈" , "🎈" , "🎃" , "🖖" , "👋" , "🙏"]
 escolher_roles_id = 824803055345336330
-fora_da_ec_message_id = 812769812861157410-827222773385789460
+# #escolher-jogo channel id == 824803055345336330
+# #escolher-ano channel id == 812769812861157410
+fora_da_ec_message_id = 827227120035954758
+
 
 
 #global snakeGame variables
@@ -182,7 +185,6 @@ async def on_raw_reaction_add(payload):
                 role_storage = role
 
         await member.add_roles(role_storage)
-
 
     if payload.message_id == fora_da_ec_message_id:
         guild = client.get_guild(payload.guild_id)
