@@ -9,12 +9,12 @@ def getHTML(url):
     
     return soup
 
-def runScrapCheck():
+def runScrapCheck(list_number):
     url = "https://www.fuvest.br/category/noticias/"
     soup = getHTML(url)
 
     #get all href links, and search for the 1st list
-    links = [link.get("href") for link in soup.find_all("a") if "2a-chamada" in link.get("href")] 
+    links = [link.get("href") for link in soup.find_all("a") if "3a-chamada" in link.get("href")] 
 
     #verify if there is something on the list
     if(len(links) > 0):

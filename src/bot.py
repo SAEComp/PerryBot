@@ -45,6 +45,8 @@ wait_time = 120 #minutes
 async def on_ready():
     print("logged on as ", client.user.name)
 
+    SearchForTheList.start()
+
     # Check here the snake game last save in the database ###todo###
     
 
@@ -53,9 +55,9 @@ async def on_ready():
 # Seaches the latest fuvest's list of aproved students
 @tasks.loop(minutes=30)
 async def SearchForTheList():
-    flag, filename = runScrapCheck()
+    flag, filename = runScrapCheck(list_number=3)
     if(flag == False):
-        flag, filename = secretpdf(list_number=2)
+        flag, filename = secretpdf(list_number=3)
     if(flag == True):
         channel = client.get_channel(823653472204226561)
         response = "Saiu a lista de chamada"
@@ -568,7 +570,7 @@ async def on_message(ctx):
             await ctx.channel.send(file=discord.File("users/usersinfo.json"))
 
     if ctx.content.lower() == "%saiu?" and ctx.channel.name == "saiu-lista":
-        flag, filename = runScrapCheck()
+        flag, filename = runScrapCheck(list_number=3)
         if(flag == True):
             await SearchForTheList()
         else:

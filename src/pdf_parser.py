@@ -63,6 +63,7 @@ def getNames(filename):
 
     howmuch = 0
     with open("names.txt" , "w") as f:
+        f.write("Nomes:\n")
         for nome,cpf,curso in zip(info["nomes"], info["cpf"], info["curso"]):
             if curso == "765−21":
                 howmuch += 1
