@@ -510,6 +510,14 @@ async def on_message(ctx):
     if ctx.author == client.user:
         return
 
+    # if ctx.content.lower() == "%send extras" and ctx.channel.name == "extras" and ctx.author.name == "Franreno":
+    #     from getextra import extras_name, extras_description, extras_image_name
+    #     for name,desc,img_name in zip(extras_name, extras_description, extras_image_name):
+    #         embed = discord.Embed(title=name, description=desc)
+    #         img_path = "src/imgs/" + str(img_name)
+    #         file = discord.File(img_path)
+    #         await ctx.channel.send(embed=embed, file=file)
+
     #greetings
     if ctx.content.lower() == "oi perry":
         if ctx.author.nick == None:
