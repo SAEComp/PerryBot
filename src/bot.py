@@ -64,6 +64,7 @@ async def SearchForTheList():
         await channel.send(response)
         await channel.send(file=discord.File(filename))
         await channel.send(file=discord.File("names.txt"))
+        SearchForTheList.stop()
     else:
         channel = client.get_channel(823721250647441421)
         await channel.send("Acabei de olhar. Ainda não saiu")
