@@ -45,7 +45,7 @@ wait_time = 120 #minutes
 async def on_ready():
     print("logged on as ", client.user.name)
 
-    SearchForTheList.start()
+    # SearchForTheList.start()
 
     # Check here the snake game last save in the database ###todo###
     
