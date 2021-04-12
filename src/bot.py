@@ -71,6 +71,10 @@ async def SearchForTheList():
 
 #-------------------------------------------------------------------------------------------
 
+
+
+
+
 @tasks.loop(seconds=wait_time)
 async def VerifySnakeGame(game):
     #ver se teve reacao na mensagem
@@ -88,6 +92,9 @@ async def VerifySnakeGame(game):
 
         #get the best move
         best_move = SnakeDict["reactionsCounter"].index(max(SnakeDict["reactionsCounter"]))
+
+
+
 
         move = None
         if(best_move == 0):
@@ -108,11 +115,8 @@ async def VerifySnakeGame(game):
             return
     
         if state == "won":
-            admin_channel = client.get_channel(812770520852201562)
-            won_response = "Jogo acabou, você ganhou parabéns!!\nScore: " + str(game.Length_of_snake - 1)
+            won_response = "Jogo acabou, você ganhou parabéns!!\nScore: " + str(game.Length_of_snake - 1) + "\nAqui está sua recompensa: " + "https://encurtador.com.br/mqDFM"
             await channel.send(won_response)
-            test_response = "## ISSO É UM TESTE ## Parabéns aqui está sua recompensa: " + "https://drive.google.com/folderview?id=1oHD1AxpPmA6KCTKqzwzhUVWVwcRQrpxW"
-            await admin_channel.send(test_response)
             VerifySnakeGame.stop()
             return
 
@@ -247,6 +251,10 @@ async def on_raw_reaction_add(payload):
         elif emoji == SnakeDict["snake_emojis"][3]: #left arrow
             SnakeDict["reactionsCounter"][3] += 1
 
+
+
+
+
 #-------------------------------------------------------------------------------------------
 @client.event
 async def on_raw_reaction_remove(payload):
@@ -299,6 +307,12 @@ async def on_raw_reaction_remove(payload):
         elif emoji == SnakeDict["snake_emojis"][3] and SnakeDict["reactionsCounter"][3] != 0: #left arrow
             SnakeDict["reactionsCounter"][3] -= 1
         
+
+
+
+
+
+           
             
 #-------------------------------------------------------------------------------------------
 

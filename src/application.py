@@ -97,6 +97,10 @@ def removeInfo(author):
             data["authors_platforms"].remove(w)
             data["authors_users"].remove(d)
 
+
+
+
+
     with open("users/temp.json", "w") as temp:
         json.dump(data, temp)
         temp.close()
@@ -125,6 +129,10 @@ def getInfoFromUser(user):
 
     info_from_user = {}
 
+
+
+
+
     for x,y,z,w,d in zip(data["authors"], data["discordnicknames"], data["id"], data["authors_platforms"], data["authors_users"]):
         if x == user:
             info_from_user["authors"] = x
@@ -148,6 +156,10 @@ def getInfoFromAllUsers():
     with open("users/usersinfo.json" , "r") as f:
         data = json.load(f)
         f.close()
+
+
+
+
 
     with open("users/getAllInfo.txt" , "w") as f:
         write_str = str()
