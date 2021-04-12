@@ -150,7 +150,6 @@ class SnakeGame():
         for x in range(self.gridSize):
             for y in range(self.gridSize):
                 if(self.matriz[x][y] == 0):
-                    print(self.matriz[x][y] , end=', ')
                     listOfZeros.append([x,y])
         
         indx = random.randint(0 , (len(listOfZeros)-1)  )
@@ -208,7 +207,6 @@ class SnakeGame():
         # self.foodx = loaded_save_state[3][0]
     
     def CheckWinState(self):
-        print("entrei")
         count = 0
         for steps in self.matriz:
             for piece in steps:
@@ -216,10 +214,8 @@ class SnakeGame():
                     count += 1
                 
         if (count == 0):
-            print("sai vitorioso")
             return True
         
-        print("sai")
         return False
 
 

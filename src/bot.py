@@ -102,18 +102,18 @@ async def VerifySnakeGame(game):
         game_state, state = game.update(move) #Make the move
 
         if(game_state == False): #check the game state
-            VerifySnakeGame.stop()
             lose_response = "Jogo acabou!\nScore: " + str(game.Length_of_snake - 1)
             await channel.send(lose_response)
+            VerifySnakeGame.stop()
             return
     
         if state == "won":
-            VerifySnakeGame.stop()
             admin_channel = client.get_channel(812770520852201562)
             won_response = "Jogo acabou, você ganhou parabéns!!\nScore: " + str(game.Length_of_snake - 1)
             await channel.send(won_response)
             test_response = "## ISSO É UM TESTE ## Parabéns aqui está sua recompensa: " + "https://drive.google.com/folderview?id=1oHD1AxpPmA6KCTKqzwzhUVWVwcRQrpxW"
             await admin_channel.send(test_response)
+            VerifySnakeGame.stop()
             return
 
 
