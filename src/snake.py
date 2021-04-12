@@ -116,19 +116,23 @@ class SnakeGame():
         # self.printMatrix_Fran()
 
         # se ele comer
-        if self.x_snake == self.foodx and self.y_snake == self.foody:
-            flagOk = False
+        if self.x_snake == self.foodx and self.y_snake == self.foody and self.CheckWinState() != True:
+            # flagOk = False
 
-            while not flagOk:
-                self.foodx = random.randrange(0, self.gridSize - self.cellSize)
-                self.foody = random.randrange(0, self.gridSize - self.cellSize)
+            # while not flagOk:
+            #     self.foodx = random.randrange(0, self.gridSize - self.cellSize)
+            #     self.foody = random.randrange(0, self.gridSize - self.cellSize)
                 
-                for body in self.snake_List:
-                    if body[0] == self.foodx and body[1] == self.foody and self.CheckWinState() != True: 
-                        flagOk = False
-                        break
-                    else:
-                        flagOk = True
+            #     for body in self.snake_List:
+            #         if body[0] == self.foodx and body[1] == self.foody:
+            #             flagOk = False
+            #             break
+            #         else:
+            #             flagOk = True
+
+            pos = self.getRandom0Pos()
+            self.foodx = pos[1]
+            self.foody = pos[0]
                     
             self.Length_of_snake += 1
             self.setAlimento(self.foodx,self.foody)
@@ -139,6 +143,20 @@ class SnakeGame():
             return final_flag, "won"
 
         return True, None
+
+
+    def getRandom0Pos(self):
+        listOfZeros = []
+        for x in range(self.gridSize):
+            for y in range(self.gridSize):
+                if(self.matriz[x][y] == 0):
+                    print(self.matriz[x][y] , end=', ')
+                    listOfZeros.append([x,y])
+        
+        indx = random.randint(0 , (len(listOfZeros)-1)  )
+        return listOfZeros[indx]
+            
+                
 
     def perderJogo(self):
         print("Perdestes?!?!?")
@@ -190,15 +208,18 @@ class SnakeGame():
         # self.foodx = loaded_save_state[3][0]
     
     def CheckWinState(self):
+        print("entrei")
         count = 0
         for steps in self.matriz:
             for piece in steps:
-                if piece == 0:
+                if piece == 0 or piece == 1:
                     count += 1
                 
         if (count == 0):
+            print("sai vitorioso")
             return True
         
+        print("sai")
         return False
 
 
