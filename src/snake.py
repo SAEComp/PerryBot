@@ -81,7 +81,7 @@ class SnakeGame():
         if self.x_snake >= self.gridSize or self.x_snake < 0 or self.y_snake >= self.gridSize or self.y_snake < 0:
             self.game_over = True
             self.perderJogo()
-            return False
+            return False, "lost"
 
         ################# 
         snake_Head = []
