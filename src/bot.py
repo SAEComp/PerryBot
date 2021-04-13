@@ -27,6 +27,12 @@ escolher_roles_id = 824803055345336330
 # #escolher-ano channel id == 812769812861157410
 fora_da_ec_message_id = 827227120035954758
 
+#Campeonato bixos
+championshipServerID = 831490866119704636
+championshipCargosChannelID = 831512528386260993
+championshipEmojis = ["💻" , "⚡", "🔩", "⚙", "❌"] #EngComp, Eletrica, Mecanica, Mecatronica, Outro
+
+
 
 
 #global snakeGame variables
@@ -92,10 +98,6 @@ async def VerifySnakeGame(game):
 
         #get the best move
         best_move = SnakeDict["reactionsCounter"].index(max(SnakeDict["reactionsCounter"]))
-
-
-
-
         move = None
         if(best_move == 0):
             move = 'w'
@@ -188,7 +190,7 @@ async def ChangeWaitTime(ctx,*args):
 @client.event
 async def on_raw_reaction_add(payload):
     channel = client.get_channel(payload.channel_id)
-    
+    print("opa adicionaram um emoji")
     if channel.id == escolher_roles_id: #roles related
         guild = client.get_guild(payload.guild_id)
         all_the_roles = await guild.fetch_roles()
@@ -251,6 +253,30 @@ async def on_raw_reaction_add(payload):
         elif emoji == SnakeDict["snake_emojis"][3]: #left arrow
             SnakeDict["reactionsCounter"][3] += 1
 
+    #Championship related
+    if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
+        guild = client.get_guild(championshipServerID)
+        all_the_roles = await guild.fetch_roles()
+        member = guild.get_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        emoji_added = payload.emoji
+        emoji_index = None
+        role_id = None
+        print(emoji_added)
+        if str(emoji_added) == str(championshipEmojis[0]): #EngComp
+            role_id = 831588091760345169
+        elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
+            role_id = 831588373088436271
+        elif str(emoji_added) == str(championshipEmojis[2]): #mecanica
+            role_id = 831588127751012412
+        elif str(emoji_added) == str(championshipEmojis[3]): #mecatronica
+            role_id = 831588153399836690
+        elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
+            role_id = 831588910663598091
+
+        role_storage = guild.get_role(role_id)
+        await member.add_roles(role_storage)        
 
 
 
@@ -307,7 +333,45 @@ async def on_raw_reaction_remove(payload):
         elif emoji == SnakeDict["snake_emojis"][3] and SnakeDict["reactionsCounter"][3] != 0: #left arrow
             SnakeDict["reactionsCounter"][3] -= 1
         
+    #Championship related
+    if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
+        guild = client.get_guild(championshipServerID)
+        member = guild.get_member(payload.user_id)
 
+        emoji_added = payload.emoji
+        role_id = None
+        print(emoji_added)
+        if str(emoji_added) == str(championshipEmojis[0]): #EngComp
+            role_id = 831588091760345169
+        elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
+            role_id = 831588373088436271
+        elif str(emoji_added) == str(championshipEmojis[2]): #mecanica
+            role_id = 831588127751012412
+        elif str(emoji_added) == str(championshipEmojis[3]): #mecatronica
+            role_id = 831588153399836690
+        elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
+            role_id = 831588910663598091
+
+        role_storage = guild.get_role(role_id)
+        await member.remove_roles(role_storage)
+
+
+
+
+
+
+
+@client.command(name="champroles")
+async def ChampionshipRolesManipulation(ctx, *args):
+    guild = client.get_guild(championshipServerID)
+    if guild.id != championshipServerID: return
+
+    channel = client.get_channel(championshipCargosChannelID)
+
+    embed = discord.Embed(title="Escolha seu curso", description="💻:    EngComp\n⚡:    Elétrica\n🔩:    Mecânica\n⚙:    Mecatrônica\n❌:    Outro curso")
+    message = await channel.send(embed=embed)
+    for emoji in championshipEmojis:
+        await message.add_reaction(emoji)
 
 
 
