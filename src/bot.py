@@ -257,6 +257,7 @@ async def on_raw_reaction_add(payload):
     if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
         guild = client.get_guild(championshipServerID)
         member = guild.get_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
 
         if not str(payload.emoji) in championshipEmojis: #if the emoji isnt one of the emojis, remove it
             await message.clear_reaction(payload.emoji)
@@ -354,7 +355,6 @@ async def on_raw_reaction_remove(payload):
 
         emoji_added = payload.emoji
         role_id = None
-        print(emoji_added)
         if str(emoji_added) == str(championshipEmojis[0]): #EngComp
             role_id = 831588091760345169
         elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
