@@ -190,7 +190,7 @@ async def ChangeWaitTime(ctx,*args):
 @client.event
 async def on_raw_reaction_add(payload):
     channel = client.get_channel(payload.channel_id)
-    print("opa adicionaram um emoji")
+
     if channel.id == escolher_roles_id: #roles related
         guild = client.get_guild(payload.guild_id)
         all_the_roles = await guild.fetch_roles()
@@ -240,7 +240,7 @@ async def on_raw_reaction_add(payload):
                     counter += 1
                 if(counter >= 2):
                     await reaction.remove(user)
-                    return      
+                    return     
 
         #add the reaction to the list of reactions
         emoji = str(payload.emoji)
@@ -256,14 +256,28 @@ async def on_raw_reaction_add(payload):
     #Championship related
     if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
         guild = client.get_guild(championshipServerID)
-        all_the_roles = await guild.fetch_roles()
         member = guild.get_member(payload.user_id)
-        message = await channel.fetch_message(payload.message_id)
+
+        if not str(payload.emoji) in championshipEmojis: #if the emoji isnt one of the emojis, remove it
+            await message.clear_reaction(payload.emoji)
+            return
+
+        #if the user has reacted more than once
+        usuario = payload.user_id
+        counter = 0
+        message_reactions = message.reactions
+        for reaction in message_reactions:
+            async for user in reaction.users():
+                if usuario == user.id and user.id != client.user.id:
+                    counter += 1
+                if(counter >= 2):
+                    await reaction.remove(user)
+                    return 
+
+
 
         emoji_added = payload.emoji
-        emoji_index = None
         role_id = None
-        print(emoji_added)
         if str(emoji_added) == str(championshipEmojis[0]): #EngComp
             role_id = 831588091760345169
         elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
