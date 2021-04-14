@@ -372,7 +372,7 @@ async def on_raw_reaction_remove(payload):
             role_id = 831588153399836690
         elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
             role_id = 831588910663598091
-        elif str(emoji_added) == str(championshipEmojis[4]): #Narrador
+        elif str(emoji_added) == str(championshipEmojis[5]): #Narrador
             role_id = 831682919834583041
 
         role_storage = guild.get_role(role_id)
