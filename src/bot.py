@@ -277,7 +277,7 @@ async def on_raw_reaction_add(payload):
         if flagMoreThenOneReaction:
             for reaction in message_reactions:
                 if str(reaction.emoji) == str(payload.emoji):
-                    await reaction.remove(user)
+                    await reaction.remove(member)
                     return
 
 
