@@ -30,7 +30,7 @@ fora_da_ec_message_id = 827227120035954758
 #Campeonato bixos
 championshipServerID = 831490866119704636
 championshipCargosChannelID = 831512528386260993
-championshipEmojis = ["💻" , "⚡", "🔩", "⚙", "❌"] #EngComp, Eletrica, Mecanica, Mecatronica, Outro
+championshipEmojis = ["💻" , "⚡", "🔩", "⚙", "❌", "🎤"] #EngComp, Eletrica, Mecanica, Mecatronica, Outro, Narrador
 
 
 
@@ -267,13 +267,18 @@ async def on_raw_reaction_add(payload):
         usuario = payload.user_id
         counter = 0
         message_reactions = message.reactions
+        flagMoreThenOneReaction = False
         for reaction in message_reactions:
             async for user in reaction.users():
                 if usuario == user.id and user.id != client.user.id:
                     counter += 1
                 if(counter >= 2):
+                    flagMoreThenOneReaction = True
+        if flagMoreThenOneReaction:
+            for reaction in message_reactions:
+                if str(reaction.emoji) == str(payload.emoji):
                     await reaction.remove(user)
-                    return 
+                    return
 
 
 
@@ -289,6 +294,8 @@ async def on_raw_reaction_add(payload):
             role_id = 831588153399836690
         elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
             role_id = 831588910663598091
+        elif str(emoji_added) == str(championshipEmojis[5]): #Narrador
+            role_id = 831682919834583041
 
         role_storage = guild.get_role(role_id)
         await member.add_roles(role_storage)        
@@ -365,6 +372,8 @@ async def on_raw_reaction_remove(payload):
             role_id = 831588153399836690
         elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
             role_id = 831588910663598091
+        elif str(emoji_added) == str(championshipEmojis[4]): #Narrador
+            role_id = 831682919834583041
 
         role_storage = guild.get_role(role_id)
         await member.remove_roles(role_storage)
@@ -382,7 +391,7 @@ async def ChampionshipRolesManipulation(ctx, *args):
 
     channel = client.get_channel(championshipCargosChannelID)
 
-    embed = discord.Embed(title="Escolha seu curso", description="💻:    EngComp\n⚡:    Elétrica\n🔩:    Mecânica\n⚙:    Mecatrônica\n❌:    Outro curso")
+    embed = discord.Embed(title="Escolha seu curso", description="💻:    EngComp\n⚡:    Elétrica\n🔩:    Mecânica\n⚙:    Mecatrônica\n❌:    Outro curso\n🎤: Narrador")
     message = await channel.send(embed=embed)
     for emoji in championshipEmojis:
         await message.add_reaction(emoji)
