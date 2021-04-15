@@ -32,9 +32,6 @@ championshipServerID = 831490866119704636
 championshipCargosChannelID = 831512528386260993
 championshipEmojis = ["💻" , "⚡", "🔩", "⚙", "❌", "🎤"] #EngComp, Eletrica, Mecanica, Mecatronica, Outro, Narrador
 
-
-
-
 #global snakeGame variables
 SnakeDict = {
     "lastSnakeMessageId": None,
@@ -44,6 +41,14 @@ SnakeDict = {
 }
 wait_time = 120 #minutes
 
+
+# Request channel variables
+requestsChannelDict = {
+    "requestChannelOrder": ['016', '017', '018', '019', '020', '021'],
+    "categoryID": [832238316387696640, 832238166127149137, 821566511516090428, 821566205239885865, 821566275348070440, 821566366493442108],
+    "requestsChannelID": [832238353813471282, 832238243235495986, 832220159598002186, 832220139889098752, 832220124877815848, 832220094050467860],
+    "requestsAdminChannelID": 832220500586790943
+}
 
 #-------------------------------------------------------------------------------------------
 # When the bot logs in
@@ -253,7 +258,57 @@ async def on_raw_reaction_add(payload):
         elif emoji == SnakeDict["snake_emojis"][3]: #left arrow
             SnakeDict["reactionsCounter"][3] += 1
 
-    #Championship related
+    #---------------------------------------------------------Requests related------------------------------------------------------
+    if payload.channel_id == requestsChannelDict["requestsAdminChannelID"] and payload.user_id != client.user.id:
+        guild = client.get_guild(payload.guild_id)
+
+        # Get the content of the message. Name of channel, where and type
+        message = await channel.fetch_message(payload.message_id)
+        listEmbeds = message.embeds
+        embed = listEmbeds[0]
+        description = embed.description.splitlines()
+        content = [elem.split(':')[1].replace(' ' , '') for elem in description] #Magick
+
+        #content should be = ['name', 'where', 'type']
+        #get the category of the message
+        category = None
+        requestChannelID = None
+        for categoryName, categoryIDIterator, channelIDIterator in zip(requestsChannelDict["requestChannelOrder"], requestsChannelDict["categoryID"], requestsChannelDict["requestsChannelID"]):
+            if str(content[1]) == str(categoryName):
+                categoryID = categoryIDIterator
+                category = discord.utils.get(guild.categories, id=categoryIDIterator)
+                requestChannelID = channelIDIterator
+
+        channelToSendResult = client.get_channel(requestChannelID)
+
+        #check if it was approved of denied
+        if str(payload.emoji) == "✅":
+
+            # See if event type is to create channel or delete channel
+            if embed.title.lower() == "criar":
+                if(content[2] == "text"):
+                    await guild.create_text_channel(content[0], category=category)
+                elif(content[2] == "voice"):
+                    await guild.create_voice_channel(content[0], category=category)
+                response = "Canal " + str(content[0]) + " aprovado e criado!"
+            
+            elif embed.title.lower() == "deletar":
+                #content should be = ['name', 'where']
+                # Get the text channel with content[0] (name)
+                for channel in category.channels:
+                    if str(channel.name) == str(content[0]):
+                        await channel.delete()
+                        response = "Canal " + str(content[0]) + " deletado!"
+
+            await message.delete(delay=10)
+            await channelToSendResult.send(response)
+        
+        elif(str(payload.emoji) == "❌"):
+            await message.delete(delay=10)
+            response = "Canal " + str(content[0]) + " rejeitado!"
+            await channelToSendResult.send(response)
+        
+    #---------------------------------------------------------Championship related------------------------------------------------------
     if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
         guild = client.get_guild(championshipServerID)
         member = guild.get_member(payload.user_id)
@@ -298,7 +353,7 @@ async def on_raw_reaction_add(payload):
             role_id = 831682919834583041
 
         role_storage = guild.get_role(role_id)
-        await member.add_roles(role_storage)        
+        await member.add_roles(role_storage)
 
 
 
@@ -607,6 +662,115 @@ async def HandleRandomEvents(ctx, *args):
     else:
         response = "Formato errado\n    ->%random: para uma mensagem aleatoria\n    ->%random add [mensagem]: adiciona a mensagem digitada\n    ->%random remove [mensagem]: remove a mensagem digitada"
         await ctx.channel.send(response)
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------
+                                            ### REQUESTS TO CREATE/DELETE ANOTHER CHANNEL ###
+
+@client.command(name="request")
+async def HandleRequestsInput(ctx, *, args):
+    # Request's input should be %request create/delete <name> <type=text(default)>
+    # When the request is made, it will be sent to the admin category waiting for the approval of anyone from SaeComp
+    # Reactions types: ✅ ❌
+    # The message sent to the admin panel will be an embed and have the <name> of the new channel as a title, 
+    # where it was made, 018,019,020,021,etc. And it's <type> text by default or channel if specified
+    
+    
+    # Check if the request was made from one of the requests channels.
+    if ctx.channel.id not in requestsChannelDict["requestsChannelID"]:
+        await ctx.channel.send("Este comando só pode ser usado em um dos canais de requests.")
+        return
+
+
+    requestInput = args.split(' ')
+    wrong_format = "Formato errado! Digite %request help"
+    
+
+    if(requestInput[0].lower() == "create"): # Handle creation of channels
+        requestInput.pop(0) # Remove Create word
+        if (len(requestInput) == 0):
+            await ctx.channnel.send(wrong_format)
+            return
+
+        channelName = requestInput[0]
+        channelType = "text"
+        requestInput.pop(0)
+
+        if (len(requestInput) != 0):
+            # The channel type was specified. Text or Voice? None -> Text by default.
+            if (requestInput[0].lower() == "voice"):
+                channelType = "voice"
+
+
+        # Verify if the name of the requested channel already exists.
+        channelTheMessageWasSent = ctx.channel
+        categoryOfMessageSent = channelTheMessageWasSent.category
+        for channelInCategory in categoryOfMessageSent.channels:
+            if channelName.lower() == channelInCategory.name.lower():
+                await ctx.channel.send("Ação inválida, canal já existe!")
+                return
+
+        # Now send to the requests-admin channel
+        title = "Criar"
+        description = "Criar canal com nome: " + str(channelName) + "\nEstá sendo criado na categoria: " + str(categoryOfMessageSent) + "\nTipo: " + str(channelType)
+
+        embed = discord.Embed(title=title, description=description)
+
+        requestAdminChannel = client.get_channel(requestsChannelDict["requestsAdminChannelID"])
+        messageAdmin = await requestAdminChannel.send(embed=embed)
+        await messageAdmin.add_reaction("✅")        
+        await messageAdmin.add_reaction("❌")        
+        await ctx.channel.send("Pedido feito! Espere ser aprovado por alguem da SAEComp")
+
+        return
+
+    
+    elif(requestInput[0].lower() == "delete"): # Handle removal of channels
+        requestInput.pop(0) #remove delete word
+        if(len(requestInput) == 0):
+            await ctx.channnel.send(wrong_format)
+            return
+    
+        channelName = requestInput[0]
+
+        # Verify if the channel exists
+        doesChannelExists = False
+        channelTheMessageWasSent = ctx.channel
+        categoryOfMessageSent = channelTheMessageWasSent.category
+        for channelInCategory in categoryOfMessageSent.channels:
+            if channelName.lower() == channelInCategory.name.lower():
+                doesChannelExists = True
+
+        if doesChannelExists:
+            # Create the message to delete certain channel
+            title = "Deletar" 
+            description = description = "Deletando canal com nome: " + str(channelName) + "\nEstá sendo deletado na categoria: " + str(categoryOfMessageSent)
+            embed = discord.Embed(title=title, description=description)
+            requestAdminChannel = client.get_channel(requestsChannelDict["requestsAdminChannelID"])
+            messageAdmin = await requestAdminChannel.send(embed=embed)
+            await messageAdmin.add_reaction("✅")        
+            await messageAdmin.add_reaction("❌")
+            await ctx.channel.send("Pedido feito! Espere ser aprovado por alguem da SAEComp")
+        
+        else:
+            await ctx.channel.send("Esse canal não existe.")
+        
+        return
+
+    elif(requestInput[0].lower() == "help"):
+        helpResponse = "Para pedir um canal de texto ou voz use o comando:\n%request <create/delete> <nome> <tipo>\nO <tipo> pode ser TEXT ou VOICE. Se não for especificado será criado como um canal de texto."
+        await ctx.channel.send(helpResponse)
+        return
+    
+#------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 
 @client.event
