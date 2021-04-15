@@ -692,14 +692,21 @@ async def HandleRequestsInput(ctx, *, args):
             await ctx.channnel.send(wrong_format)
             return
 
-        channelName = requestInput[0]
+        # Verify if the last pos has the input type
+        lastpos = requestInput[len(requestInput)-1]
         channelType = "text"
-        requestInput.pop(0)
-
-        if (len(requestInput) != 0):
-            # The channel type was specified. Text or Voice? None -> Text by default.
-            if (requestInput[0].lower() == "voice"):
+        if(lastpos.lower() == "text" or lastpos.lower() == "voice"):
+            #if it has check if its voice
+            if(lastpos.lower() == "voice"):
                 channelType = "voice"
+        #then discard the last element of the list
+        requestInput.pop()
+
+        if(len(requestInput) == 0):
+            await ctx.channel.send(wrong_format)
+            return
+
+        channelName = requestInput.join(' ')
 
 
         # Verify if the name of the requested channel already exists.
@@ -731,7 +738,21 @@ async def HandleRequestsInput(ctx, *, args):
             await ctx.channnel.send(wrong_format)
             return
     
-        channelName = requestInput[0]
+        # Verify if the last pos has the input type
+        lastpos = requestInput[len(requestInput)-1]
+        channelType = "text"
+        if(lastpos.lower() == "text" or lastpos.lower() == "voice"):
+            #if it has check if its voice
+            if(lastpos.lower() == "voice"):
+                channelType = "voice"
+        #then discard the last element of the list
+        requestInput.pop()
+
+        if(len(requestInput) == 0):
+            await ctx.channel.send(wrong_format)
+            return
+            
+        channelName = requestInput.join(' ')
 
         # Verify if the channel exists
         doesChannelExists = False
