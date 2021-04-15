@@ -267,7 +267,11 @@ async def on_raw_reaction_add(payload):
         listEmbeds = message.embeds
         embed = listEmbeds[0]
         description = embed.description.splitlines()
-        content = [elem.split(':')[1].replace(' ' , '') for elem in description] #Magick
+        content = [elem.split(':')[1] for elem in description] #Magick
+        content[0] = content[0][1:]
+        content[1] = content[1].replace(' ', '')
+        content[2] = content[2].replace(' ', '')
+
 
         #content should be = ['name', 'where', 'type']
         #get the category of the message
@@ -283,24 +287,27 @@ async def on_raw_reaction_add(payload):
 
         #check if it was approved of denied
         if str(payload.emoji) == "✅":
-
+            response = "Canal "
             # See if event type is to create channel or delete channel
             if embed.title.lower() == "criar":
                 if(content[2] == "text"):
                     await guild.create_text_channel(content[0], category=category)
                 elif(content[2] == "voice"):
                     await guild.create_voice_channel(content[0], category=category)
-                response = "Canal " + str(content[0]) + " aprovado e criado!"
+                response = str(content[0]) + " aprovado e criado!"
             
             elif embed.title.lower() == "deletar":
                 #content should be = ['name', 'where']
                 # Get the text channel with content[0] (name)
                 for channel in category.channels:
-                    if str(channel.name) == str(content[0]):
+                    print("To printando aqui; " + str(channel.name)) if "teste" in channel.name else None
+                    print("Agora to printando o conteudo[0]: " + str(repr(content[0]))) if "teste" in channel.name else None
+                    if str(channel.name).lower() == str(content[0]).lower():
+                        print("entrei")
                         await channel.delete()
-                        response = "Canal " + str(content[0]) + " deletado!"
+                        response = str(content[0]) + " deletado!"
 
-            await message.delete(delay=10)
+            # await message.delete(delay=10)
             await channelToSendResult.send(response)
         
         elif(str(payload.emoji) == "❌"):
@@ -706,7 +713,7 @@ async def HandleRequestsInput(ctx, *, args):
             await ctx.channel.send(wrong_format)
             return
 
-        channelName = requestInput.join(' ')
+        channelName =  ' '.join(requestInput)
 
 
         # Verify if the name of the requested channel already exists.
@@ -752,7 +759,7 @@ async def HandleRequestsInput(ctx, *, args):
             await ctx.channel.send(wrong_format)
             return
             
-        channelName = requestInput.join(' ')
+        channelName =  ' '.join(requestInput) if channelType == "voice" else '-'.join(requestInput)
 
         # Verify if the channel exists
         doesChannelExists = False
@@ -765,7 +772,7 @@ async def HandleRequestsInput(ctx, *, args):
         if doesChannelExists:
             # Create the message to delete certain channel
             title = "Deletar" 
-            description = description = "Deletando canal com nome: " + str(channelName) + "\nEstá sendo deletado na categoria: " + str(categoryOfMessageSent)
+            description = description = "Deletando canal com nome: " + str(channelName) + "\nEstá sendo deletado na categoria: " + str(categoryOfMessageSent) + "\nTipo: " + str(channelType)
             embed = discord.Embed(title=title, description=description)
             requestAdminChannel = client.get_channel(requestsChannelDict["requestsAdminChannelID"])
             messageAdmin = await requestAdminChannel.send(embed=embed)
