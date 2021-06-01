@@ -5,11 +5,11 @@ Esse bot foi criado para o uso no discord **oficial** do curso de Engenharia de 
 </h2>
 
 <p align="center">
-    <a href="https://github.com/${{ env.REPOSITORY_FULL_NAME }}/commits/main">
-    <img src="https://img.shields.io/github/commit-activity/m/${{ env.REPOSITORY_FULL_NAME }}?style=plastic">
+    <a href="https://github.com/SAEComp/PerryBot/commits/main">
+    <img src="https://img.shields.io/github/commit-activity/m/SAEComp/PerryBot?style=plastic">
     </a>
-    <a href="https://github.com/${{ env.REPOSITORY_FULL_NAME }}/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/${{ env.REPOSITORY_FULL_NAME }}?style=plastic"/>
+    <a href="https://github.com/SAEComp/PerryBot/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/SAEComp/PerryBot?style=plastic"/>
     </a>
     <br>
     <a href="https://saecomp.github.io">
