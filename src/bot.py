@@ -307,7 +307,7 @@ async def on_raw_reaction_add(payload):
                         await channel.delete()
                         response = str(content[0]) + " deletado!"
 
-            # await message.delete(delay=10)
+            await message.delete(delay=10)
             await channelToSendResult.send(response)
         
         elif(str(payload.emoji) == "❌"):
