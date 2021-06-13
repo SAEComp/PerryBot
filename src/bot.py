@@ -2,10 +2,8 @@
 import os, time, json, nacl, discord, random, requests, datetime
 from discord.ext import commands, tasks
 
-from application import app, parseResponse, writeInfo, removeInfo, doesUserExits, getInfoFromUser, getInfoFromAllUsers #user handling
-from database_handler import add_random_text, get_random_text, remove_random_text, get_all_text #database related
-from listafuvest import runScrapCheck, secretpdf #search of fuvest's list
-from snake import SnakeGame, VerifyMatriz, GetCurrentTime, GetLastSnakeMessageId, StringOfMatriz #snake game
+from database_handler import *
+
 
 #Special permissions to be able to use the bot
 intents = discord.Intents.default()
@@ -27,21 +25,6 @@ escolher_roles_id = 824803055345336330
 # #escolher-ano channel id == 812769812861157410
 fora_da_ec_message_id = 827227120035954758
 
-#Campeonato bixos
-championshipServerID = 831490866119704636
-championshipCargosChannelID = 831512528386260993
-championshipEmojis = ["💻" , "⚡", "🔩", "⚙", "❌", "🎤"] #EngComp, Eletrica, Mecanica, Mecatronica, Outro, Narrador
-
-#global snakeGame variables
-SnakeDict = {
-    "lastSnakeMessageId": None,
-    "reactionsCounter": [0,0,0,0] ,
-    "snake_emojis": ["⬆" , "⬇" , "➡", "⬅"],
-    "snakeChannelId": 825497428693745744 #jogo-da-cobrinha channel id
-}
-wait_time = 120 #minutes
-
-
 # Request channel variables
 requestsChannelDict = {
     "requestChannelOrder": ['016', '017', '018', '019', '020', '021'],
@@ -59,138 +42,7 @@ async def on_ready():
     # SearchForTheList.start()
 
     # Check here the snake game last save in the database ###todo###
-    
 
-#-------------------------------------------------------------------------------------------
-
-# Seaches the latest fuvest's list of aproved students
-@tasks.loop(minutes=30)
-async def SearchForTheList():
-    flag, filename = runScrapCheck(list_number=3)
-    if(flag == False):
-        flag, filename = secretpdf(list_number=3)
-    if(flag == True):
-        channel = client.get_channel(823653472204226561)
-        response = "Saiu a lista de chamada"
-        await channel.send(response)
-        await channel.send(file=discord.File(filename))
-        await channel.send(file=discord.File("names.txt"))
-        SearchForTheList.stop()
-    else:
-        channel = client.get_channel(823721250647441421)
-        await channel.send("Acabei de olhar. Ainda não saiu")
-
-#-------------------------------------------------------------------------------------------
-
-
-
-
-
-@tasks.loop(seconds=wait_time)
-async def VerifySnakeGame(game):
-    #ver se teve reacao na mensagem
-    #ver a reacao que foi mais votada
-    #mandar uma nova mensagem com a matriz atualizada, e os emojis de novo
-
-    #verify if the message had any added reactions
-    flag = False
-    for reaction in SnakeDict["reactionsCounter"]:
-        if reaction != 0:
-            flag = True
-
-    channel = client.get_channel(SnakeDict["snakeChannelId"])
-    if flag:
-
-        #get the best move
-        best_move = SnakeDict["reactionsCounter"].index(max(SnakeDict["reactionsCounter"]))
-        move = None
-        if(best_move == 0):
-            move = 'w'
-        elif(best_move == 1):
-            move = 's'
-        elif(best_move == 2):
-            move = 'd'
-        elif(best_move == 3):
-            move = 'a'
-
-        game_state, state = game.update(move) #Make the move
-
-        if(game_state == False): #check the game state
-            lose_response = "Jogo acabou!\nScore: " + str(game.Length_of_snake - 1)
-            await channel.send(lose_response)
-            VerifySnakeGame.stop()
-            return
-    
-        if state == "won":
-            won_response = "Jogo acabou, você ganhou parabéns!!\nScore: " + str(game.Length_of_snake - 1) + "\nAqui está sua recompensa: " + "https://encurtador.com.br/mqDFM"
-            await channel.send(won_response)
-            VerifySnakeGame.stop()
-            return
-
-
-        #clear the reaction counter
-        SnakeDict["reactionsCounter"] = [0 for _ in range(len(SnakeDict["reactionsCounter"]))]
-        
-        #get the new matrix and send it
-        response_matriz = await StringOfMatriz(game,wait_time)
-
-        message = await channel.send(response_matriz)
-        SnakeDict["lastSnakeMessageId"] = message.id
-        for emoji in SnakeDict["snake_emojis"]:
-            await message.add_reaction(emoji)
-
-    else:
-        try:
-            message = await channel.fetch_message(SnakeDict["lastSnakeMessageId"])
-            response_matriz = await StringOfMatriz(game,wait_time)
-            await message.edit(content=response_matriz)
-        except:
-            pass
-
-#-------------------------------------------------------------------------------------------
-
-@client.command(name="startgame")
-async def HandleSnakeGame(ctx, *args):
-    if VerifySnakeGame.is_running() == False:
-        game = SnakeGame()
-        
-        if len(args) != 0:
-            tempo = int(args[0])
-            global wait_time
-            wait_time = tempo
-
-        response_matriz = await StringOfMatriz(game,wait_time)
-        
-        message = await ctx.channel.send(response_matriz)
-        SnakeDict["lastSnakeMessageId"] = message.id
-        for emoji in SnakeDict["snake_emojis"]:
-            await message.add_reaction(emoji)
-
-        VerifySnakeGame.start(game) #comeca a função VerifySnakeGame
-        VerifySnakeGame.change_interval(seconds=wait_time)
-    else:
-        response = "Jogo já em andamento!"
-        await ctx.channel.send(response)
-
-#-------------------------------------------------------------------------------------------
-@client.command(name="stopgame")
-async def HandleStopSnakeGame(ctx,*args):
-    VerifySnakeGame.stop()
-    response = "Jogo terminado!\n"
-    await ctx.channel.send(response)
-#-------------------------------------------------------------------------------------------
-@client.command(name="changetime")
-async def ChangeWaitTime(ctx,*args):
-    if(len(args) != 0):
-        tempo = int(args[0])
-        global wait_time
-        wait_time = tempo
-        VerifySnakeGame.change_interval(seconds=wait_time)
-        response = "Tempo mudado para " + str(wait_time) + " segundos."
-        await ctx.channel.send(response)
-    else:
-        await ctx.channel.send("Erro!\n%changetime <tempo>")
-#-------------------------------------------------------------------------------------------
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -223,40 +75,6 @@ async def on_raw_reaction_add(payload):
                 role_storage = role
 
         await member.add_roles(role_storage)
-
-
-    #snake game related
-    if payload.message_id == SnakeDict["lastSnakeMessageId"] and payload.user_id != client.user.id:
-        channel = client.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        
-        if not str(payload.emoji) in SnakeDict["snake_emojis"]: #if the emoji isnt one of the four emojis, remove it
-            print(payload.emoji)
-            await message.clear_reaction(payload.emoji)
-            return
-
-        #if the user has added more than one reaction
-        usuario = payload.user_id
-        counter = 0
-        message_reactions = message.reactions
-        for reaction in message_reactions:
-            async for user in reaction.users():
-                if usuario == user.id and user.id != client.user.id:
-                    counter += 1
-                if(counter >= 2):
-                    await reaction.remove(user)
-                    return     
-
-        #add the reaction to the list of reactions
-        emoji = str(payload.emoji)
-        if emoji == SnakeDict["snake_emojis"][0]: #up arrow
-            SnakeDict["reactionsCounter"][0] += 1
-        elif emoji == SnakeDict["snake_emojis"][1]: #down arow
-            SnakeDict["reactionsCounter"][1] += 1
-        elif emoji == SnakeDict["snake_emojis"][2]: #rigth arrow
-            SnakeDict["reactionsCounter"][2] += 1
-        elif emoji == SnakeDict["snake_emojis"][3]: #left arrow
-            SnakeDict["reactionsCounter"][3] += 1
 
     #---------------------------------------------------------Requests related------------------------------------------------------
     if payload.channel_id == requestsChannelDict["requestsAdminChannelID"] and payload.user_id != client.user.id:
@@ -314,53 +132,6 @@ async def on_raw_reaction_add(payload):
             await message.delete(delay=10)
             response = "Canal " + str(content[0]) + " rejeitado!"
             await channelToSendResult.send(response)
-        
-    #---------------------------------------------------------Championship related------------------------------------------------------
-    if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
-        guild = client.get_guild(championshipServerID)
-        member = guild.get_member(payload.user_id)
-        message = await channel.fetch_message(payload.message_id)
-
-        if not str(payload.emoji) in championshipEmojis: #if the emoji isnt one of the emojis, remove it
-            await message.clear_reaction(payload.emoji)
-            return
-
-        #if the user has reacted more than once
-        usuario = payload.user_id
-        counter = 0
-        message_reactions = message.reactions
-        flagMoreThenOneReaction = False
-        for reaction in message_reactions:
-            async for user in reaction.users():
-                if usuario == user.id and user.id != client.user.id:
-                    counter += 1
-                if(counter >= 2):
-                    flagMoreThenOneReaction = True
-        if flagMoreThenOneReaction:
-            for reaction in message_reactions:
-                if str(reaction.emoji) == str(payload.emoji):
-                    await reaction.remove(member)
-                    return
-
-
-
-        emoji_added = payload.emoji
-        role_id = None
-        if str(emoji_added) == str(championshipEmojis[0]): #EngComp
-            role_id = 831588091760345169
-        elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
-            role_id = 831588373088436271
-        elif str(emoji_added) == str(championshipEmojis[2]): #mecanica
-            role_id = 831588127751012412
-        elif str(emoji_added) == str(championshipEmojis[3]): #mecatronica
-            role_id = 831588153399836690
-        elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
-            role_id = 831588910663598091
-        elif str(emoji_added) == str(championshipEmojis[5]): #Narrador
-            role_id = 831682919834583041
-
-        role_storage = guild.get_role(role_id)
-        await member.add_roles(role_storage)
 
 
 
@@ -399,68 +170,6 @@ async def on_raw_reaction_remove(payload):
                 role_storage = role
 
         await member.remove_roles(role_storage)
-
-
-
-    #snake game related
-    if payload.message_id == SnakeDict["lastSnakeMessageId"] and payload.user_id != client.user.id:
-        channel = client.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        
-        emoji = str(payload.emoji)
-        if emoji == SnakeDict["snake_emojis"][0] and SnakeDict["reactionsCounter"][0] != 0: #up arrow
-            SnakeDict["reactionsCounter"][0] -= 1
-        elif emoji == SnakeDict["snake_emojis"][1] and SnakeDict["reactionsCounter"][1] != 0: #down arow
-            SnakeDict["reactionsCounter"][1] -= 1
-        elif emoji == SnakeDict["snake_emojis"][2] and SnakeDict["reactionsCounter"][2] != 0: #rigth arrow
-            SnakeDict["reactionsCounter"][2] -= 1
-        elif emoji == SnakeDict["snake_emojis"][3] and SnakeDict["reactionsCounter"][3] != 0: #left arrow
-            SnakeDict["reactionsCounter"][3] -= 1
-        
-    #Championship related
-    if payload.channel_id == championshipCargosChannelID and payload.guild_id == championshipServerID:
-        guild = client.get_guild(championshipServerID)
-        member = guild.get_member(payload.user_id)
-
-        emoji_added = payload.emoji
-        role_id = None
-        if str(emoji_added) == str(championshipEmojis[0]): #EngComp
-            role_id = 831588091760345169
-        elif str(emoji_added) == str(championshipEmojis[1]): #eletrica
-            role_id = 831588373088436271
-        elif str(emoji_added) == str(championshipEmojis[2]): #mecanica
-            role_id = 831588127751012412
-        elif str(emoji_added) == str(championshipEmojis[3]): #mecatronica
-            role_id = 831588153399836690
-        elif str(emoji_added) == str(championshipEmojis[4]): #outro curso
-            role_id = 831588910663598091
-        elif str(emoji_added) == str(championshipEmojis[5]): #Narrador
-            role_id = 831682919834583041
-
-        role_storage = guild.get_role(role_id)
-        await member.remove_roles(role_storage)
-
-
-
-
-
-
-
-@client.command(name="champroles")
-async def ChampionshipRolesManipulation(ctx, *args):
-    guild = client.get_guild(championshipServerID)
-    if guild.id != championshipServerID: return
-
-    channel = client.get_channel(championshipCargosChannelID)
-
-    embed = discord.Embed(title="Escolha seu curso", description="💻:    EngComp\n⚡:    Elétrica\n🔩:    Mecânica\n⚙:    Mecatrônica\n❌:    Outro curso\n🎤: Narrador")
-    message = await channel.send(embed=embed)
-    for emoji in championshipEmojis:
-        await message.add_reaction(emoji)
-
-
-
-
            
             
 #-------------------------------------------------------------------------------------------
@@ -793,27 +502,11 @@ async def HandleRequestsInput(ctx, *, args):
 #------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
 @client.event
 async def on_message(ctx):
     
     if ctx.author == client.user:
         return
-
-    # if ctx.content.lower() == "%send extras" and ctx.channel.name == "extras" and ctx.author.name == "Franreno":
-    #     from getextra import extras_name, extras_description, extras_image_name
-    #     for name,desc,img_name in zip(extras_name, extras_description, extras_image_name):
-    #         embed = discord.Embed(title=name, description=desc)
-    #         img_path = "src/imgs/" + str(img_name)
-    #         file = discord.File(img_path)
-    #         await ctx.channel.send(embed=embed, file=file)
 
     #greetings
     if ctx.content.lower() == "oi perry":
@@ -822,64 +515,12 @@ async def on_message(ctx):
         else:
             response = "Oi " + str(ctx.author.nick) + '!'
         await ctx.channel.send(response)
-
-    #handle usernames from different platforms and stores them
-    if ctx.content.startswith("*") and ctx.content.lower() != "*remover" and ctx.channel.name == "🔭user-de-jogo" and ":" in ctx.content:
-        get_message = ctx.content
-        flag, content = app(get_message, ctx.author)
-        if(flag == 0):
-            await ctx.channel.send(content)
-        else:
-            response = parseResponse(content, ctx.author)
-            await ctx.channel.send(response)
-            writeInfo(content, ctx.author)
-
-    #remove a requested username from a discord member
-    if ctx.content.lower() == "*remover" and ctx.channel.name == "🔭user-de-jogo":
-        removeInfo(ctx.author)
-        response = "Dados Removidos " + ctx.author.mention
-        await ctx.channel.send(response)
-
-    #get information from a certain member.
-    if ctx.content.startswith('%') and ctx.content.lower() != "%getall" and ctx.content.lower() != "%saiu?":
-        user = ctx.content.replace('%' , '')
-        flag, user = doesUserExits(user)
-        if (flag == True):
-            response = getInfoFromUser(user)
-            await ctx.channel.send(response)
-
-
-    #get info from all users
-    if ctx.content.lower() == "%getall" and ctx.channel.name == "info-users":
-        flag = False
-        for role in ctx.author.roles:
-            if role.name =="SaeComp":
-                flag = True
-            
-        if(flag == True):
-            getInfoFromAllUsers()
-            await ctx.channel.send(file=discord.File("users/getAllInfo.txt"))
-
+        
     if ctx.content.lower() == "bcc":
         await ctx.channel.send("#XUPABCC")
 
     if ctx.content.lower() == "federal":
         await ctx.channel.send("#XUPAFEDERAL")
-
-    if ctx.content.lower() == "%get debugg json" and ctx.channel.name == "info-users":
-        flag = False
-        for role in ctx.author.roles:
-            if role.name == "SaeComp":
-                flag = True
-        if(flag == True):
-            await ctx.channel.send(file=discord.File("users/usersinfo.json"))
-
-    if ctx.content.lower() == "%saiu?" and ctx.channel.name == "saiu-lista":
-        flag, filename = runScrapCheck(list_number=3)
-        if(flag == True):
-            await SearchForTheList()
-        else:
-            await ctx.channel.send("Ainda não saiu")
 
     await client.process_commands(ctx)
 
