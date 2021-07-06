@@ -27,9 +27,9 @@ fora_da_ec_message_id = 827227120035954758
 
 # Request channel variables
 requestsChannelDict = {
-    "requestChannelOrder": ['016', '017', '018', '019', '020', '021'],
-    "categoryID": [832238316387696640, 832238166127149137, 821566511516090428, 821566205239885865, 821566275348070440, 821566366493442108],
-    "requestsChannelID": [832238353813471282, 832238243235495986, 832220159598002186, 832220139889098752, 832220124877815848, 832220094050467860],
+    "requestChannelOrder": ['016', '017', '018', '019', '020', '021', '🎮Jogos'],
+    "categoryID": [832238316387696640, 832238166127149137, 821566511516090428, 821566205239885865, 821566275348070440, 821566366493442108, 812795327752831056],
+    "requestsChannelID": [832238353813471282, 832238243235495986, 832220159598002186, 832220139889098752, 832220124877815848, 832220094050467860, 862073690924646450],
     "requestsAdminChannelID": 832220500586790943
 }
 
@@ -118,10 +118,7 @@ async def on_raw_reaction_add(payload):
                 #content should be = ['name', 'where']
                 # Get the text channel with content[0] (name)
                 for channel in category.channels:
-                    print("To printando aqui; " + str(channel.name)) if "teste" in channel.name else None
-                    print("Agora to printando o conteudo[0]: " + str(repr(content[0]))) if "teste" in channel.name else None
                     if str(channel.name).lower() == str(content[0]).lower():
-                        print("entrei")
                         await channel.delete()
                         response = str(content[0]) + " deletado!"
 
