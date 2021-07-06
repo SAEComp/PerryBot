@@ -1,9 +1,5 @@
 discord.py==1.6.0
 PyNaCl==1.4.0
 boto==2.49.0
-beautifulsoup4==4.9.3
-requests==2.25.1
-pdfreader==0.1.10
-lxml==4.6.3
 DateTime==4.3
 psycopg2==2.8.6
