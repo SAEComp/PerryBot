@@ -1,4 +1,4 @@
-import os, psycopg2, json, discord
+import os, psycopg2
 
 DATABASE_URL = None
 try:

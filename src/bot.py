@@ -1,6 +1,6 @@
 # essential
-import os, time, json, nacl, discord, random, requests, datetime
-from discord.ext import commands, tasks
+import os, discord, random
+from discord.ext import commands
 
 from database_handler import *
 
