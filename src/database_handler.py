@@ -1,10 +1,16 @@
 import os, psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 DATABASE_URL = None
 try:
     DATABASE_URL = os.environ["DATABASE_URL"]
+    if(DATABASE_URL == None):
+        raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 except:
-    from secret_keys import DATABASE_URL
+    raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 
 
 #Connect to the database (private function)

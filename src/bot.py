@@ -1,9 +1,13 @@
 # essential
 import os, discord, random
-from discord.ext import commands
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
 
 from database_handler import *
+from listafuvest import SearchForFuvest, UpdateListNumber
+from pdf_parser import ParsePDF
 
+load_dotenv()
 
 #Special permissions to be able to use the bot
 intents = discord.Intents.default()
@@ -25,6 +29,8 @@ escolher_roles_id = 824803055345336330
 # #escolher-ano channel id == 812769812861157410
 fora_da_ec_message_id = 827227120035954758
 
+LISTA_FUVEST_CHANNEL_ID = 935666519336181770
+
 # Request channel variables
 requestsChannelDict = {
     "requestChannelOrder": ['016', '017', '018', '019', '020', '021', '🎮Jogos'],
@@ -39,9 +45,26 @@ requestsChannelDict = {
 async def on_ready():
     print("logged on as ", client.user.name)
 
-    # SearchForTheList.start()
+    SearchForTheList.start()
 
     # Check here the snake game last save in the database ###todo###
+
+
+@tasks.loop(seconds=30)
+async def SearchForTheList():
+    flag, filename = SearchForFuvest()
+    if(flag == True):
+        ParsePDF()
+        channel = client.get_channel(LISTA_FUVEST_CHANNEL_ID)
+        response = "Saiu a lista de chamada!"
+        await channel.send(response)
+        await channel.send(file=discord.File(filename))
+        await channel.send(file=discord.File("./data/names.txt"))
+        UpdateListNumber()
+        SearchForTheList.stop()
+    else:
+        channel = client.get_channel(823721250647441421)
+        await channel.send("Acabei de olhar! Ainda não saiu :(")
 
 
 @client.event
@@ -521,11 +544,12 @@ async def on_message(ctx):
 
     await client.process_commands(ctx)
 
-secret_token = None
+SECRET_TOKEN = None
 try:
-    secret_token = os.environ["TOKEN"]
+    SECRET_TOKEN = os.environ["TOKEN"]
+    if(SECRET_TOKEN == None):
+        raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 except:
-    from secret_keys import TOKEN
-    secret_token = TOKEN
-    
-client.run(secret_token)
+    raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
+
+client.run(SECRET_TOKEN)
