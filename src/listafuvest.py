@@ -1,6 +1,5 @@
 from typing import Union
-from urllib import response
-import requests, time
+import requests
 from bs4 import BeautifulSoup
 
 PATH_TO_LIST_NUMBER = "./data/numero_lista.txt"
