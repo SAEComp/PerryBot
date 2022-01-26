@@ -50,7 +50,7 @@ async def on_ready():
     # Check here the snake game last save in the database ###todo###
 
 
-@tasks.loop(minutes=30)
+@tasks.loop(minutes=90)
 async def SearchForTheList():
     flag, filename = SearchForFuvest()
     if(flag == True):
