@@ -6,6 +6,8 @@ PATH_TO_LIST_NUMBER = "./data/numero_lista.txt"
 PATH_TO_PDF = "./data/lista_chamada.pdf"
 MAIN_URL = "https://acervo.fuvest.br/fuvest/2021/fuvest_2021_chamada_"
 NEWS_URL = "https://www.fuvest.br/category/noticias/"
+ACERVO_URL = "https://acervo.fuvest.br/fuvest/2022/"
+
 
 def get_html(url: str) -> BeautifulSoup:
     return BeautifulSoup(requests.get(url).text, 'lxml')
@@ -41,17 +43,46 @@ def SearchFuvestNews(list_number: int) -> Union[bool, str]:
     pdf_filename = PATH_TO_PDF.split('/')[-1]
 
     return True, pdf_filename
-    
 
-def SearchForFuvest() -> Union[bool, str]:
+
+
+def SearchFuvestAcervo(list_number: int) -> Union[bool, str]:
+    pdf_url = ACERVO_URL + str(list_number) + ".pdf"
+
+    response = requests.get(pdf_url)
+
+    if response.status_code == 404: return False, None
+
+    if response.status_code == 200:
+        with open(PATH_TO_PDF, "wb") as pdfFile:
+            pdfFile.write(response.content)
+        return True, PATH_TO_PDF
     
+    return False, None
+
+
+def ReadNumberFile() -> int:
+
     with open(PATH_TO_LIST_NUMBER) as number_file:
         data_read = number_file.read()
     
     number = int(data_read[0])
 
+def SearchForFuvest() -> Union[bool, str]:
+    
+    number = ReadNumberFile()
+
     flag, pdf_filename = SearchFuvestNews(number)
 
+    return flag, pdf_filename
+
+
+def SearchIntoAcervoFuvest() -> Union[bool, str]:
+    
+    number = ReadNumberFile()
+
+    flag, pdf_filename = SearchFuvestAcervo(number)
+    
     return flag, pdf_filename
 
 

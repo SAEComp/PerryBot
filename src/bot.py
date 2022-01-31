@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 from database_handler import *
-from listafuvest import SearchForFuvest, UpdateListNumber
+from listafuvest import SearchForFuvest, SearchIntoAcervoFuvest, UpdateListNumber
 from pdf_parser import ParsePDF
 
 load_dotenv()
@@ -53,6 +53,9 @@ async def on_ready():
 @tasks.loop(minutes=90)
 async def SearchForTheList():
     flag, filename = SearchForFuvest()
+    if(flag == False):
+        flag, filename = SearchIntoAcervoFuvest()
+
     if(flag == True):
         ParsePDF()
         channel = client.get_channel(LISTA_FUVEST_CHANNEL_ID)
