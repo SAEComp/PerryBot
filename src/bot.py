@@ -79,7 +79,7 @@ anos_map_from_roles = {
 async def on_ready():
     print("logged on as ", client.user.name)
 
-    SearchForTheList.start()
+    #SearchForTheList.start()
 
 
 @client.event
