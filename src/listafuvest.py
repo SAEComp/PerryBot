@@ -6,8 +6,7 @@ PATH_TO_LIST_NUMBER = "./data/numero_lista.txt"
 PATH_TO_PDF = "./data/lista_chamada.pdf"
 ACERVO_SUFIX = "fuvest_2022_chamada_"
 NEWS_URL = "https://www.fuvest.br/todas-as-publicacoes"
-ACERVO_URL = "https://acervo.fuvest.br/fuvest/2022/"
-
+ACERVO_URL = "https://www.fuvest.br/wp-content/uploads/"
 
 def get_html(url: str) -> BeautifulSoup:
     return BeautifulSoup(requests.get(url).text, 'lxml')
