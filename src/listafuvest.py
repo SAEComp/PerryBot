@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 PATH_TO_LIST_NUMBER = "./data/numero_lista.txt"
 PATH_TO_PDF = "./data/lista_chamada.pdf"
 ACERVO_SUFIX = "fuvest_2022_chamada_"
-NEWS_URL = "https://www.fuvest.br/category/noticias/"
+NEWS_URL = "https://www.fuvest.br/todas-as-publicacoes"
 ACERVO_URL = "https://acervo.fuvest.br/fuvest/2022/"
 
 

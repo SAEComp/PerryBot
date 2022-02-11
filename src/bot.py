@@ -105,7 +105,7 @@ Lembre-se de escolher o seu ano no canal {client.get_channel(escolher_ano_channe
     await new_member_channel.send(new_member_message)
 
 
-@tasks.loop(minutes=30)
+@tasks.loop(minutes=1)
 async def SearchForTheList():
     print("Procurando a lista")
     flag, filename = SearchForFuvest()
@@ -125,8 +125,8 @@ async def SearchForTheList():
         SearchForTheList.stop()
     else:
         print("Nao saiu.")
-        channel = client.get_channel(823721250647441421)
-        await channel.send("Acabei de olhar! Ainda não saiu :(")
+        # channel = client.get_channel(823721250647441421)
+        # await channel.send("Acabei de olhar! Ainda não saiu :(")
 
 
 @client.event
