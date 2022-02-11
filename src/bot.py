@@ -105,13 +105,16 @@ Lembre-se de escolher o seu ano no canal {client.get_channel(escolher_ano_channe
     await new_member_channel.send(new_member_message)
 
 
-@tasks.loop(minutes=90)
+@tasks.loop(minutes=30)
 async def SearchForTheList():
+    print("Procurando a lista")
     flag, filename = SearchForFuvest()
     if(flag == False):
+        print("Nao saiu no site de noticias")
         flag, filename = SearchIntoAcervoFuvest()
 
     if(flag == True):
+        print("SAIU")
         ParsePDF()
         channel = client.get_channel(LISTA_FUVEST_CHANNEL_ID)
         response = "Saiu a lista de chamada!"
@@ -121,6 +124,7 @@ async def SearchForTheList():
         UpdateListNumber()
         SearchForTheList.stop()
     else:
+        print("Nao saiu.")
         channel = client.get_channel(823721250647441421)
         await channel.send("Acabei de olhar! Ainda não saiu :(")
 

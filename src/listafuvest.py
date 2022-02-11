@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 PATH_TO_LIST_NUMBER = "./data/numero_lista.txt"
 PATH_TO_PDF = "./data/lista_chamada.pdf"
-MAIN_URL = "https://acervo.fuvest.br/fuvest/2021/fuvest_2021_chamada_"
+ACERVO_SUFIX = "fuvest_2022_chamada_"
 NEWS_URL = "https://www.fuvest.br/category/noticias/"
 ACERVO_URL = "https://acervo.fuvest.br/fuvest/2022/"
 
@@ -47,7 +47,8 @@ def SearchFuvestNews(list_number: int) -> Union[bool, str]:
 
 
 def SearchFuvestAcervo(list_number: int) -> Union[bool, str]:
-    pdf_url = ACERVO_URL + str(list_number) + ".pdf"
+    pdf_url = ACERVO_URL + ACERVO_SUFIX + str(list_number) + ".pdf"
+    print(f"Olhando: {pdf_url}")
 
     response = requests.get(pdf_url)
 
@@ -67,6 +68,7 @@ def ReadNumberFile() -> int:
         data_read = number_file.read()
     
     number = int(data_read[0])
+    return number
 
 def SearchForFuvest() -> Union[bool, str]:
     
