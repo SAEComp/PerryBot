@@ -355,7 +355,7 @@ async def on_message(ctx):
         await ctx.channel.send("#XUPABCC")
 
     if ctx.content.lower() == "federal":
-        await ctx.channel.send("#XUPAFEDERAL")
+        await ctx.channel.send("#XUPAFEDERAL!")
 
     await client.process_commands(ctx)
 
