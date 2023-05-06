@@ -424,11 +424,9 @@ async def Notion_Bot():
         
         await asyncio.sleep(900)
         
-#SECRET_TOKEN= "ODE5MjY2ODEzNzA2ODk1NDIy.GxQNwA.mHRNGLYPXg6HM0vKb9JJ11iuPj4ybgl8jvXC-M"
-#SECRET_TOKEN = None
+SECRET_TOKEN = None
 try:
-    #SECRET_TOKEN = os.environ["TOKEN"]
-    SECRET_TOKEN= 'ODE5MjY2ODEzNzA2ODk1NDIy.GxQNwA.mHRNGLYPXg6HM0vKb9JJ11iuPj4ybgl8jvXC-M'
+    SECRET_TOKEN = os.environ["TOKEN"]
     if (SECRET_TOKEN == None):
         raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 except:
