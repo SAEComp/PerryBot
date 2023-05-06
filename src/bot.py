@@ -2,13 +2,16 @@
 import os
 import discord
 import random
+import asyncio
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
 # Special permissions to be able to use the bot
-intents = discord.Intents.default()
+#intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 intents.emojis = True
 intents.messages = True
@@ -352,19 +355,86 @@ async def on_message(ctx):
         await ctx.channel.send(response)
 
     if ctx.content.lower() == "bcc":
-        await ctx.channel.send("#XUPABCC!")
+         await ctx.channel.send("#XUPABCC!")
 
     if ctx.content.lower() == "federal":
         await ctx.channel.send("#XUPAFEDERAL!")
 
+    if ctx.content.lower() == "jean":
+        await ctx.channel.send("Pau no cu do homer!")
+
+    if ctx.content.lower() == "ku":
+        await ctx.channel.send("Me desculpa, membro não encontrado! Provavelmente Umedando")
+
+
+
     await client.process_commands(ctx)
 
-SECRET_TOKEN = None
+async def Notion_Bot():
+    await client.wait_until_ready()
+    while True:
+        token = 'secret_NALmWtuGhHkehYWvZxSTOE9a4V6lriuVGjPZ0X9YQ7P'
+
+        databaseId = '7300faddb03f45a0b6932149d66510d5'
+
+        headers = {
+            "Authorization": "Bearer " + token,
+            "Notion-Version": "2022-06-28",
+            "content-type": "application/json"
+        }
+        # Flauta, Cu, Homer e Rio amo vcs <3
+
+        readUrl = f"https://api.notion.com/v1/databases/{databaseId}/query"
+        res = requests.request("POST", readUrl, headers=headers)
+        dados = res.json()["results"]
+        for properties in dados:
+            Checkbox = properties["properties"]["Checkbox"]["checkbox"]
+            if Checkbox == False:
+                nome_do_projeto = properties["properties"]["Name"]["title"][0]["text"]["content"]
+                if properties["properties"]["Descrição"]["rich_text"]:
+                    descricao = properties["properties"]["Descrição"]["rich_text"][0]["text"]["content"]
+                else:
+                    descricao = ""
+                Solicitante = properties["properties"]["Solicitante"]["created_by"]["name"]
+                if properties["properties"]["Data de entrega"]["date"] is None:
+                    Entrega = "Não especificado"
+                else:
+                    Entrega = str(properties["properties"]["Data de entrega"]["date"]["end"])
+                if properties["properties"]["Diretoria"]["select"] is None:
+                    diretoria = "Não especificado"
+                else:
+                    diretoria = str(properties["properties"]["Diretoria"]["select"]["name"])
+                channel = client.get_channel(845049025018200075)
+                await channel.send("Oi @diretoria\n Tem uma nova nota no Notion! Vou te mandar os detalhes:")
+                await channel.send("Nome do Projeto: " + nome_do_projeto + "\nDescrição do Projeto: " + descricao + "\nSolicitante: " + Solicitante + "\nDiretoria: " + diretoria + "\nData de Entrega: " + Entrega)
+                page_id = properties["id"]
+                update_url = f"https://api.notion.com/v1/pages/{page_id}"
+                new_props = {
+                    "Checkbox": {
+                        "checkbox": True
+                    }
+                }
+                update_data = {
+                    "properties": new_props
+                }
+                requests.patch(update_url, headers=headers, json=update_data)
+
+
+        
+        
+        await asyncio.sleep(900)
+        
+#SECRET_TOKEN= "ODE5MjY2ODEzNzA2ODk1NDIy.GxQNwA.mHRNGLYPXg6HM0vKb9JJ11iuPj4ybgl8jvXC-M"
+#SECRET_TOKEN = None
 try:
-    SECRET_TOKEN = os.environ["TOKEN"]
+    #SECRET_TOKEN = os.environ["TOKEN"]
+    SECRET_TOKEN= 'ODE5MjY2ODEzNzA2ODk1NDIy.GxQNwA.mHRNGLYPXg6HM0vKb9JJ11iuPj4ybgl8jvXC-M'
     if (SECRET_TOKEN == None):
         raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 except:
     raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
+@client.event
+async def on_ready():
+    await Notion_Bot()
 
 client.run(SECRET_TOKEN)
