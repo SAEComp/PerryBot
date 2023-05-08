@@ -373,7 +373,7 @@ async def on_message(ctx):
 async def Notion_Bot():
     await client.wait_until_ready()
     while True:
-        token = 'secret_NALmWtuGhHkehYWvZxSTOE9a4V6lriuVGjPZ0X9YQ7P'
+        TOKEN_NOTION = os.environ["TOKEN_NOTION"]
 
         databaseId = '7300faddb03f45a0b6932149d66510d5'
 
