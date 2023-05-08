@@ -361,7 +361,7 @@ async def on_message(ctx):
         await ctx.channel.send("#XUPAFEDERAL!")
 
     if ctx.content.lower() == "jean":
-        await ctx.channel.send("Pau no cu do homer!")
+        await ctx.channel.send("Pau no cu do HOMER!")
 
     if ctx.content.lower() == "ku":
         await ctx.channel.send("Me desculpa, membro não encontrado! Provavelmente Umedando")
