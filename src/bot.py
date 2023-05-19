@@ -6,6 +6,15 @@ import asyncio
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import requests
+import datetime
+import os.path
+from dateutil import parser
+from bs4 import BeautifulSoup
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 load_dotenv()
 
@@ -68,11 +77,7 @@ anos_map_from_roles = {
 }
 
 
-# -------------------------------------------------------------------------------------------
-# When the bot logs in
-@client.event
-async def on_ready():
-    print("logged on as ", client.user.name)
+
 
 
 @client.event
@@ -364,7 +369,7 @@ async def on_message(ctx):
         await ctx.channel.send("Pau no cu do HOMER!")
 
     if ctx.content.lower() == "ku":
-        await ctx.channel.send("Me desculpa, membro não encontrado! Provavelmente Umedando")
+        await ctx.channel.send("Umedar (Verbo Transitivo Indireto):\nDefinição: Umedar é um termo utilizado para descrever a ausência ou falta às reuniões da Diretoria Técnica da Saecomp (Secretaria Acadêmica da Engenharia da Computação). O termo é específico para o contexto dessa organização e é amplamente utilizado pelos membros para se referir à situação em que um indivíduo não comparece a uma reunião importante.")
 
 
 
@@ -373,16 +378,15 @@ async def on_message(ctx):
 async def Notion_Bot():
     await client.wait_until_ready()
     while True:
-        token = os.environ["TOKEN_NOTION"]
+        TOKEN_NOTION = os.environ["TOKEN_NOTION"]
 
         databaseId = '7300faddb03f45a0b6932149d66510d5'
 
         headers = {
-            "Authorization": "Bearer " + token,
+            "Authorization": "Bearer " + TOKEN_NOTION,
             "Notion-Version": "2022-06-28",
             "content-type": "application/json"
         }
-        # Flauta, Cu, Homer e Rio amo vcs <3
 
         readUrl = f"https://api.notion.com/v1/databases/{databaseId}/query"
         res = requests.request("POST", readUrl, headers=headers)
@@ -394,7 +398,7 @@ async def Notion_Bot():
                 if properties["properties"]["Descrição"]["rich_text"]:
                     descricao = properties["properties"]["Descrição"]["rich_text"][0]["text"]["content"]
                 else:
-                    descricao = ""
+                    descricao = "Não Especificado"
                 Solicitante = properties["properties"]["Solicitante"]["created_by"]["name"]
                 if properties["properties"]["Data de entrega"]["date"] is None:
                     Entrega = "Não especificado"
@@ -405,7 +409,7 @@ async def Notion_Bot():
                 else:
                     diretoria = str(properties["properties"]["Diretoria"]["select"]["name"])
                 channel = client.get_channel(845049025018200075)
-                await channel.send("Oi @diretoria\n Tem uma nova nota no Notion! Vou te mandar os detalhes:")
+                await channel.send("Oi @diretoria\nTem uma nova nota no Notion! Vou te mandar os detalhes:")
                 await channel.send("Nome do Projeto: " + nome_do_projeto + "\nDescrição do Projeto: " + descricao + "\nSolicitante: " + Solicitante + "\nDiretoria: " + diretoria + "\nData de Entrega: " + Entrega)
                 page_id = properties["id"]
                 update_url = f"https://api.notion.com/v1/pages/{page_id}"
@@ -420,10 +424,61 @@ async def Notion_Bot():
                 requests.patch(update_url, headers=headers, json=update_data)
 
 
-        
-        
         await asyncio.sleep(900)
-        
+
+@tasks.loop(seconds=15)
+async def Calendar_Bot():
+    await client.wait_until_ready()
+    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+    TOKEN_GOOGLE =  os.environ.get('TOKEN_GOOGLE')
+    creds = Credentials.from_authorized_user_info(TOKEN_GOOGLE , SCOPES)
+    try:
+        service = build('calendar', 'v3', credentials=creds)
+
+        # Call the Calendar API
+        now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+        calendars = service.calendarList().list().execute()
+        for calendar in calendars['items']:
+            calendar_id = calendar['id']
+            calendar_name = calendar['summary']
+            if calendar_name != "Holidays in Brazil" and calendar_name != "Aniversários":
+                events_result = service.events().list(calendarId=calendar_id, timeMin=now,
+                                                    maxResults=10, singleEvents=True,
+                                                    orderBy='startTime').execute()
+                events = events_result.get('items', [])
+
+                # Lista para armazenar os eventos
+                eventos_hoje = []
+
+                # Percorre os eventos e verifica se a data é a de hoje
+                for event in events:
+                    start = event['start'].get('dateTime', event['start'].get('date'))
+                    data = parser.parse(start)
+                    if data.date() == datetime.date.today():
+                        # Armazena as informações do evento na lista
+                        evento_info = {
+                            'horario': data.strftime('%H:%M'),
+                            'summary': event['summary'],
+                            'description': ''
+                        }
+                        if 'description' in event:
+                            description = event['description']
+                            soup = BeautifulSoup(description, 'html.parser')
+                            description = soup.get_text()
+                            evento_info['description'] = description
+                        eventos_hoje.append(evento_info)
+
+                # Imprime os eventos armazenados
+                if eventos_hoje:
+                    channel = client.get_channel(1108540671092064276)
+                    await channel.send(f'Bom dia, @SaeCompers! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
+                    for evento in eventos_hoje:
+                        await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
+    
+
+    except HttpError as error:
+        print('An error occurred: %s' % error)
+
 SECRET_TOKEN = None
 try:
     SECRET_TOKEN = os.environ["TOKEN"]
@@ -431,8 +486,20 @@ try:
         raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 except:
     raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
+
+# -------------------------------------------------------------------------------------------
+# When the bot logs in
 @client.event
 async def on_ready():
+    print("logged on as ", client.user.name)
     await Notion_Bot()
+    channel = client.get_channel(1108540671092064276)
+    await channel.send("Horario para Teste:", datetime.datetime.utcnow().strftime("%H:%M"))
+    for _ in range(60*24):
+        if datetime.datetime.utcnow().strftime("%H:%M") == "07:30":
+            await Calendar_Bot()
+            await asyncio.sleep(86400)            
+        await asyncio.sleep(30)
+        
 
 client.run(SECRET_TOKEN)
