@@ -472,7 +472,7 @@ async def Calendar_Bot():
 
                     # Imprime os eventos armazenados
                     if eventos_hoje:
-                        channel = client.get_channel(1108540671092064276)
+                        channel = client.get_channel(845046607618506772)
                         await channel.send(f'Bom dia, @SaeCompers! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
                         for evento in eventos_hoje:
                             await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
@@ -499,7 +499,7 @@ async def on_ready():
     channel = client.get_channel(1108540671092064276)
     await channel.send("Bot Online - " + datetime.datetime.utcnow().strftime("%H:%M"))
     for _ in range(60*24):
-        if datetime.datetime.utcnow().strftime("%H:%M") == "14:49":
+        if datetime.datetime.utcnow().strftime("%H:%M") == "10:30":
             asyncio.create_task(Calendar_Bot())
         await asyncio.sleep(30)
         
