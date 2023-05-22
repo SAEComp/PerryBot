@@ -1,0 +1,29 @@
+name: Docker Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Stop and Remove existing container
+        run: |
+          sudo docker stop perry || true
+          sudo docker rm perry || true
+
+      - name: Remove existing image
+        run: |
+          sudo docker image rm perry || true
+          
+      - name: Build Docker image
+        run: sudo docker build --no-cache -tag perry .
+
+      - name: Docker Container
+        run: sudo docker run -d --restart unless-stopped perry
