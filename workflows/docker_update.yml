@@ -23,7 +23,7 @@ jobs:
           sudo docker image rm perry || true
 
       - name: Build Docker image
-        run: sudo docker build -tag perry .
+        run: sudo docker build --no-cache --tag perry . 
 
       - name: Docker Container
-        run: sudo docker run -d --no-cache --restart unless-stopped perry
+        run: sudo docker run -d --restart unless-stopped perry
