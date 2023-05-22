@@ -498,9 +498,9 @@ async def on_ready():
     print("logged on as ", client.user.name)
     asyncio.create_task(Notion_Bot())
     channel = client.get_channel(1108540671092064276)
-    await channel.send("Bot Online - " + datetime.datetime.utcnow().strftime("%H:%M"))
+    await channel.send("Bot Online - " + datetime.datetime.utcnow().strftime("%H:%Mh"))
     for _ in range(60*24):
-        if datetime.datetime.utcnow().strftime("%H:%M") == "10:30h":
+        if datetime.datetime.utcnow().strftime("%H:%M") == "10:30":
             asyncio.create_task(Calendar_Bot())
         await asyncio.sleep(30)
         
