@@ -370,8 +370,8 @@ async def on_message(ctx):
 
     if ctx.content.lower() == "ku":
         await ctx.channel.send("Umedar (Verbo Transitivo Indireto):\nDefinição: Umedar é um termo utilizado para descrever a ausência ou falta às reuniões da Diretoria Técnica da Saecomp (Secretaria Acadêmica da Engenharia da Computação). O termo é específico para o contexto dessa organização e é amplamente utilizado pelos membros para se referir à situação em que um indivíduo não comparece a uma reunião importante.")
-    if ctx.content.lowe() == "calendario":
-        asyncio.create_task(Calendar_Bot())
+    if ctx.content.lowe() == "homer":
+        await ctx.channel.send("Eu te amo Homer!!")
 
 
     await client.process_commands(ctx)
