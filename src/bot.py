@@ -431,6 +431,8 @@ async def Notion_Bot():
 
 async def Calendar_Bot():
     await client.wait_until_ready()
+    channel = client.get_channel(1108540671092064276)
+    await channel.send("Iniciando Bot Calendário")
     while True:
         SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
         TOKEN_GOOGLE =  eval(os.environ.get('TOKEN_GOOGLE'))
@@ -475,14 +477,15 @@ async def Calendar_Bot():
                     # Imprime os eventos armazenados
                     if eventos_hoje:
                         channel = client.get_channel(845046607618506772)
-                        await channel.send(f'Bom dia, @SaeCompers! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
+                        await channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
                         for evento in eventos_hoje:
                             await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
+            await asyncio.sleep(86400)
         
 
         except HttpError as error:
             print('An error occurred: %s' % error)
-        await asyncio.sleep(86400)
+        
 
 SECRET_TOKEN = None
 try:
@@ -500,10 +503,7 @@ async def on_ready():
     asyncio.create_task(Notion_Bot())
     channel = client.get_channel(1108540671092064276)
     await channel.send("Bot Online - " + datetime.datetime.utcnow().strftime("%H:%Mh"))
-    for _ in range(60*24):
-        if datetime.datetime.utcnow().strftime("%H:%M") == "10:30":
-            asyncio.create_task(Calendar_Bot())
-        await asyncio.sleep(30)
+    asyncio.create_task(Calendar_Bot())
         
 
 client.run(SECRET_TOKEN)
