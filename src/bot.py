@@ -377,7 +377,6 @@ async def on_message(ctx):
 
     await client.process_commands(ctx)
 
-@client.event
 async def Notion_Bot():
     await client.wait_until_ready()
     while True:
@@ -495,6 +494,21 @@ try:
 except:
     raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 
+async def agendar_calendario():
+    while True:
+        # Aguardar até que seja 8h da manhã
+        agora = datetime.datetime.now()
+        proxima_task = agora.replace(hour=8, minute=0, second=0, microsecond=0)
+        if agora > proxima_task:
+            # Se já passou das 8h hoje, agendar para amanhã
+            proxima_task += datetime.timedelta(days=1)
+        espera = (proxima_task - agora).total_seconds()
+        print(espera)
+        await asyncio.sleep(espera)
+
+        # Executar a tarefa diária
+        await Calendar_Bot()
+
 # -------------------------------------------------------------------------------------------
 # When the bot logs in
 @client.event
@@ -503,7 +517,7 @@ async def on_ready():
     asyncio.create_task(Notion_Bot())
     channel = client.get_channel(1108540671092064276)
     await channel.send("Bot Online - " + datetime.datetime.utcnow().strftime("%H:%Mh"))
-    asyncio.create_task(Calendar_Bot())
+    asyncio.create_task(agendar_calendario())
         
 
 client.run(SECRET_TOKEN)
