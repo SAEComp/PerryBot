@@ -431,7 +431,6 @@ async def Notion_Bot():
 async def Calendar_Bot():
     await client.wait_until_ready()
     channel = client.get_channel(1108540671092064276)
-    await channel.send("Iniciando Bot Calendário")
     while True:
         SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
         TOKEN_GOOGLE =  eval(os.environ.get('TOKEN_GOOGLE'))
