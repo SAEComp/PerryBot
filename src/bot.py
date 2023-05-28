@@ -380,7 +380,7 @@ async def on_message(ctx):
 async def Notion_Bot():
     await client.wait_until_ready()
     while True:
-        print("Starting NotionBot")
+        print("Starting NotionBot. Horário: ", datetime.datetime.now().strftime("%H:%Mh"))
         TOKEN_NOTION = os.environ["TOKEN_NOTION"]
 
         databaseId = '7300faddb03f45a0b6932149d66510d5'
@@ -435,7 +435,7 @@ async def Calendar_Bot():
     TOKEN_GOOGLE =  eval(os.environ.get('TOKEN_GOOGLE'))
     creds = Credentials.from_authorized_user_info(TOKEN_GOOGLE , SCOPES)
     try:
-        print("Starting Calendar Bot")
+        print("Starting Calendar Bot. Horário: ", datetime.datetime.now().strftime("%H:%Mh"))
         service = build('calendar', 'v3', credentials=creds)
 
         # Call the Calendar API
@@ -500,7 +500,6 @@ async def agendar_calendario():
             # Se já passou das 8h hoje, agendar para amanhã
             proxima_task += datetime.timedelta(days=1)
         espera = (proxima_task - agora).total_seconds()
-        print(espera)
         await asyncio.sleep(espera)
 
         # Executar a tarefa diária
