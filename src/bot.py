@@ -512,7 +512,6 @@ async def on_ready():
     print("logged on as ", client.user.name)
     asyncio.create_task(Notion_Bot())
     channel = client.get_channel(1108540671092064276)
-    await channel.send("Bot Online - " + datetime.datetime.now().strftime("%H:%Mh"))
     asyncio.create_task(agendar_calendario())
         
 
