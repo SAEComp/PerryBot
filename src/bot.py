@@ -501,9 +501,9 @@ async def agendar_calendario():
             proxima_task += datetime.timedelta(days=1)
         espera = (proxima_task - agora).total_seconds()
         await asyncio.sleep(espera)
-
         # Executar a tarefa diária
         asyncio.create_task(Calendar_Bot())
+        await asyncio.sleep(minutes=5)
 
 # -------------------------------------------------------------------------------------------
 # When the bot logs in
