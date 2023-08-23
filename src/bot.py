@@ -503,7 +503,7 @@ async def agendar_calendario():
         await asyncio.sleep(espera)
         # Executar a tarefa diária
         asyncio.create_task(Calendar_Bot())
-        await asyncio.sleep(minutes=5)
+        await asyncio.sleep(1200)
 
 # -------------------------------------------------------------------------------------------
 # When the bot logs in
