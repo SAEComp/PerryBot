@@ -429,59 +429,59 @@ async def Notion_Bot():
 
 
 async def Calendar_Bot():
-    await client.wait_until_ready()
-    channel = client.get_channel(1108540671092064276)
-    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-    TOKEN_GOOGLE =  eval(os.environ.get('TOKEN_GOOGLE'))
-    creds = Credentials.from_authorized_user_info(TOKEN_GOOGLE , SCOPES)
-    try:
-        print("Starting Calendar Bot. Horário: ", datetime.datetime.now().strftime("%H:%Mh"))
-        service = build('calendar', 'v3', credentials=creds)
+        await client.wait_until_ready()
+        channel = client.get_channel(1108540671092064276)
+        SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+        TOKEN_GOOGLE =  eval(os.environ.get('TOKEN_GOOGLE'))
+        creds = Credentials.from_authorized_user_info(TOKEN_GOOGLE , SCOPES)
+        try:
+            print("Starting Calendar Bot. Horário: ", datetime.datetime.now().strftime("%H:%Mh"))
+            service = build('calendar', 'v3', credentials=creds)
 
-        # Call the Calendar API
-        now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-        calendars = service.calendarList().list().execute()
-        for calendar in calendars['items']:
-            calendar_id = calendar['id']
-            calendar_name = calendar['summary']
-            if calendar_name != "Holidays in Brazil" and calendar_name != "Aniversários":
-                events_result = service.events().list(calendarId=calendar_id, timeMin=now,
-                                                    maxResults=10, singleEvents=True,
-                                                    orderBy='startTime').execute()
-                events = events_result.get('items', [])
+            # Call the Calendar API
+            now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+            calendars = service.calendarList().list().execute()
+            for calendar in calendars['items']:
+                
+                calendar_id = calendar['id']
+                calendar_name = calendar['summary']
+                if calendar_name != "Holidays in Brazil" and calendar_name != "Aniversários":
+                    events_result = service.events().list(calendarId=calendar_id, timeMin=now,
+                                                        maxResults=10, singleEvents=True,
+                                                        orderBy='startTime').execute()
+                    events = events_result.get('items', [])
 
-                # Lista para armazenar os eventos
-                eventos_hoje = []
+                    # Lista para armazenar os eventos
+                    eventos_hoje = []
 
-                # Percorre os eventos e verifica se a data é a de hoje
-                for event in events:
-                    start = event['start'].get('dateTime', event['start'].get('date'))
-                    data = parser.parse(start)
-                    if data.date() == datetime.date.today():
-                        # Armazena as informações do evento na lista
-                        evento_info = {
-                            'horario': data.strftime('%H:%M'),
-                            'summary': event['summary'],
-                            'description': ''
-                        }
-                        if 'description' in event:
-                            description = event['description']
-                            soup = BeautifulSoup(description, 'html.parser')
-                            description = soup.get_text()
-                            evento_info['description'] = description
-                        eventos_hoje.append(evento_info)
+                    # Percorre os eventos e verifica se a data é a de hoje
+                    for event in events:
+                        start = event['start'].get('dateTime', event['start'].get('date'))
+                        data = parser.parse(start)
+                        if data.date() == datetime.date.today():
+                            # Armazena as informações do evento na lista
+                            evento_info = {
+                                'horario': data.strftime('%H:%M'),
+                                'summary': event['summary'],
+                                'description': ''
+                            }
+                            if 'description' in event:
+                                description = event['description']
+                                soup = BeautifulSoup(description, 'html.parser')
+                                description = soup.get_text()
+                                evento_info['description'] = description
+                            eventos_hoje.append(evento_info)
+                
+                    # Imprime os eventos armazenados
+                    if eventos_hoje:
+                        channel = client.get_channel(845046607618506772)
+                        channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
+                        for evento in eventos_hoje:
+                            channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
+        
 
-                # Imprime os eventos armazenados
-                if eventos_hoje:
-                    channel = client.get_channel(845046607618506772)
-                    await channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
-                    for evento in eventos_hoje:
-                        await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
-    
-
-    except HttpError as error:
-        print('An error occurred: %s' % error)
-
+        except HttpError as error:
+            print('An error occurred: %s' % error)
 
 SECRET_TOKEN = None
 try:
@@ -491,19 +491,22 @@ try:
 except:
     raise Exception("Erro ao ler o conteudo do .env para o DATABASE_URL")
 
+
+
 async def agendar_calendario():
     while True:
         # Aguardar até que seja 8h da manhã
-        agora = datetime.datetime.now()
-        proxima_task = agora.replace(hour=11, minute=0, second=0, microsecond=0)
-        if agora > proxima_task:
+        now = datetime.datetime.now()
+        proxima_task = now.replace(hour=11, minute=0, second=0, microsecond=0)
+        if now > proxima_task:
             # Se já passou das 8h hoje, agendar para amanhã
             proxima_task += datetime.timedelta(days=1)
-        espera = (proxima_task - agora).total_seconds()
+        espera = (proxima_task - now).total_seconds()
         await asyncio.sleep(espera)
         # Executar a tarefa diária
         asyncio.create_task(Calendar_Bot())
-        await asyncio.sleep(1200)
+        asyncio.sleep(120)
+
 
 # -------------------------------------------------------------------------------------------
 # When the bot logs in
