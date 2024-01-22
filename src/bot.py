@@ -51,6 +51,7 @@ escolher_ano_emojis = [
     "<:021_ano:938881567579852811>",
     "<:022_ano:938881567969935420>",
     "<:023_ano:1068282529494343730>",
+    "<:024_ano:1198973565169582100>",
     "<:nenhum_ano:938881567810527282>"
 ]
 
@@ -62,6 +63,7 @@ anos_roles_id = [
     "812767353820676106",   # 021
     "938864548570611712",   # 022
     "1068282004401049692",  # 023
+    "1198973565169582100",  # 024
     "827227117866975262"    # Nao eng comper
 ]
 
@@ -73,7 +75,8 @@ anos_map_from_roles = {
     escolher_ano_emojis[4]: anos_roles_id[4],
     escolher_ano_emojis[5]: anos_roles_id[5],
     escolher_ano_emojis[6]: anos_roles_id[6],
-    escolher_ano_emojis[7]: anos_roles_id[7]
+    escolher_ano_emojis[7]: anos_roles_id[7],
+    escolher_ano_emojis[8]: anos_roles_id[8]
 }
 
 
@@ -364,16 +367,6 @@ async def on_message(ctx):
 
     if ctx.content.lower() == "federal":
         await ctx.channel.send("#XUPAFEDERAL!")
-
-    if ctx.content.lower() == "jean":
-        await ctx.channel.send("يساعد")
-
-    if ctx.content.lower() == "ku":
-        await ctx.channel.send("Umedar (Verbo Transitivo Direto):\nDefinição: Umedar é um termo utilizado para descrever a ausência ou falta às reuniões da Diretoria Técnica da Saecomp (Secretaria Acadêmica da Engenharia da Computação). O termo é específico para o contexto dessa organização e é amplamente utilizado pelos membros para se referir à situação em que um indivíduo não comparece a uma reunião importante.")
-    
-    if ctx.content.lower() == "homer":
-        await ctx.channel.send("Eu te amo Homer!!")
-
 
     await client.process_commands(ctx)
 
