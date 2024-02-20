@@ -39,9 +39,9 @@ random_emojis = ["🖐", "👌", "🤑", "🍕", "🍣",
 escolher_game_roles_id = 824803055345336330
 escolher_ano_channel_id = 812769812861157410
 fora_da_ec_message_id = 827227120035954758
-
+TEST_CHANNEL_ID = 1108540671092064276
 WELCOME_CHANNEL_ID = 812783690773037107
-
+GENERAL_CHANNEL_ID = 845046607618506772
 
 escolher_ano_emojis = [
     "<:017_ano:938881567823110204>",
@@ -368,6 +368,10 @@ async def on_message(ctx):
     if ctx.content.lower() == "federal":
         await ctx.channel.send("#XUPAFEDERAL!")
 
+    if ctx.content.lower() == "teste-calendario":
+        asyncio.create_task(Calendar_Bot())
+
+
     await client.process_commands(ctx)
 
 async def Notion_Bot():
@@ -440,7 +444,7 @@ async def Calendar_Bot():
                 calendar_name = calendar['summary']
                 if calendar_name != "Holidays in Brazil" and calendar_name != "Aniversários":
                     events_result = service.events().list(calendarId=calendar_id, timeMin=now,
-                                                        maxResults=10, singleEvents=True,
+                                                        maxResults=5, singleEvents=True,
                                                         orderBy='startTime').execute()
                     events = events_result.get('items', [])
 
@@ -467,11 +471,10 @@ async def Calendar_Bot():
                 
                     # Imprime os eventos armazenados
                     if eventos_hoje:
-                        channel = client.get_channel(845046607618506772)
-                        channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
+                        channel = client.get_channel(TEST_CHANNEL_ID)
+                        await channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
                         for evento in eventos_hoje:
-                            channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
-        
+                            await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
 
         except HttpError as error:
             print('An error occurred: %s' % error)
@@ -490,7 +493,7 @@ async def agendar_calendario():
     while True:
         # Aguardar até que seja 8h da manhã
         now = datetime.datetime.now()
-        proxima_task = now.replace(hour=11, minute=0, second=0, microsecond=0)
+        proxima_task = now.replace(hour=15, minute=16, second=0, microsecond=0)
         if now > proxima_task:
             # Se já passou das 8h hoje, agendar para amanhã
             proxima_task += datetime.timedelta(days=1)
@@ -498,7 +501,7 @@ async def agendar_calendario():
         await asyncio.sleep(espera)
         # Executar a tarefa diária
         asyncio.create_task(Calendar_Bot())
-        asyncio.sleep(120)
+        await asyncio.sleep(120)
 
 
 # -------------------------------------------------------------------------------------------
