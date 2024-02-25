@@ -493,7 +493,7 @@ async def agendar_calendario():
     while True:
         # Aguardar até que seja 8h da manhã
         now = datetime.datetime.now()
-        proxima_task = now.replace(hour=15, minute=16, second=0, microsecond=0)
+        proxima_task = now.replace(hour=11, minute=0, second=0, microsecond=0)
         if now > proxima_task:
             # Se já passou das 8h hoje, agendar para amanhã
             proxima_task += datetime.timedelta(days=1)
