@@ -40,6 +40,7 @@ escolher_game_roles_id = 824803055345336330
 escolher_ano_channel_id = 812769812861157410
 fora_da_ec_message_id = 827227120035954758
 TEST_CHANNEL_ID = 1108540671092064276
+
 WELCOME_CHANNEL_ID = 812783690773037107
 GENERAL_CHANNEL_ID = 845046607618506772
 
@@ -471,7 +472,7 @@ async def Calendar_Bot():
                 
                     # Imprime os eventos armazenados
                     if eventos_hoje:
-                        channel = client.get_channel(TEST_CHANNEL_ID)
+                        channel = client.get_channel(GENERAL_CHANNEL_ID)
                         await channel.send(f'Bom dia, @everyone! Acabei de ver que temos compromissos hoje na seguinte Agenda {calendar_name}. \nAqui estao os detalhes do(s) evento(s):')
                         for evento in eventos_hoje:
                             await channel.send("Horário: " + evento['horario'] + "h   " + evento['summary'] + "\nDescrição/Local: " + evento['description'])
