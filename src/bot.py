@@ -81,17 +81,31 @@ anos_map_from_roles = {
 }
 
 
-
-
-
 @client.event
 async def on_member_join(member):
+    GUILD_ID_1 = 812764950249734164  # id engcomp
+    GUILD_ID_2 = 692420401413881968  # id saecomp
 
-    new_member_private_message = f""" 
-Bem vinde ao discord oficial da Engenharia de Computação da USP de São Carlos!
+    WELCOME_CHANNEL_ID_GUILD_1 = 812783690773037107  # id bemvindo engcomp
+    WELCOME_CHANNEL_ID_GUILD_2 = 753018055361298552  # id bemvindo saecomp
 
-Lembre-se de escolher o seu ano no canal {client.get_channel(escolher_ano_channel_id).mention}
-    """
+    if member.guild.id == GUILD_ID_1:
+        new_member_private_message = f"""
+        Bem-vinde ao discord oficial da Engenharia de Computação da USP de São Carlos!
+        
+        Lembre-se de escolher o seu ano no canal {client.get_channel(escolher_ano_channel_id).mention}
+        """
+
+        # Pegar o channel de novos participantes
+        new_member_channel = client.get_channel(WELCOME_CHANNEL_ID_GUILD_1)
+
+    elif member.guild.id == GUILD_ID_2:
+        new_member_private_message = """
+        Bem-vinde ao discord oficial da SAEComp da USP de São Carlos!
+        """
+
+        # Pegar o channel de novos participantes
+        new_member_channel = client.get_channel(WELCOME_CHANNEL_ID_GUILD_2)
 
     # Mandar mensagem pro membro falando pra escolher as roles no channel de roles
     try:
@@ -100,13 +114,8 @@ Lembre-se de escolher o seu ano no canal {client.get_channel(escolher_ano_channe
     except:
         print("O novo membro nao deixa mandar mensagem no privado :(")
 
-    # Pegar o channel de novos participantes
-    new_member_channel = client.get_channel(WELCOME_CHANNEL_ID)
-    new_member_message = member.mention + \
-        " seja bem vinde!\t<:perry:824019135880364053> <:p_heart:830601667937435679>"
-
+    new_member_message = member.mention + " seja bem-vinde!\t<:perry:824019135880364053> <:p_heart:830601667937435679>"
     await new_member_channel.send(new_member_message)
-
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -364,10 +373,13 @@ async def on_message(ctx):
         await ctx.channel.send(response)
 
     if ctx.content.lower() == "bcc":
-         await ctx.channel.send("#XUPABCC!")
+        await ctx.channel.send("#XUPABCC!")
 
     if ctx.content.lower() == "federal":
         await ctx.channel.send("#XUPAFEDERAL!")
+    
+    if ctx.content.lower() == "teste":
+        await ctx.channel.send("#funcionando!")
 
     if ctx.content.lower() == "teste-calendario":
         asyncio.create_task(Calendar_Bot())
@@ -424,6 +436,47 @@ async def Notion_Bot():
                 }
                 requests.patch(update_url, headers=headers, json=update_data)
         await asyncio.sleep(900)
+
+#PARTE DE ANIVERSÁRIO - CHECAR!!
+
+saecomp_server = 692420401413881968
+random_channel = 753018055361298552
+
+async def check_birthdays():
+    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+    TOKEN_GOOGLE = eval(os.environ.get('TOKEN_GOOGLE'))
+    creds = Credentials.from_authorized_user_info(TOKEN_GOOGLE, SCOPES)
+    try:
+        service = build('calendar', 'v3', credentials=creds)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        start_of_day = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, tzinfo=datetime.timezone.utc)
+        end_of_day = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=datetime.timezone.utc)
+
+        events_result = service.events().list(
+            calendarId='c_crbe8cea0nkmhpq3i2ovtgqlt0@group.calendar.google.com',
+            timeMin=start_of_day.isoformat(),
+            timeMax=end_of_day.isoformat(),
+            singleEvents=True,
+            orderBy='startTime'
+        ).execute()
+
+        events = events_result.get('items', [])
+
+        for event in events:
+            if 'aniversário' in event.get('summary', '').lower():  
+                event_summary = event['summary']
+                name = event_summary.replace("Aniversário - ", "").strip()
+                # Mensagem no servidor
+                guild = client.get_guild(saecomp_server)
+                channel = guild.get_channel(random_channel)
+                await channel.send(f"Hoje é aniversário de {name}! Parabéns! 🎉 <:perry:824019135880364053> <:p_heart:830601667937435679>")
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+    
+        
+
+
+
 
 
 async def Calendar_Bot():
@@ -513,6 +566,21 @@ async def on_ready():
     asyncio.create_task(Notion_Bot())
     channel = client.get_channel(1108540671092064276)
     asyncio.create_task(agendar_calendario())
+
+
+
+    #PARTE DE ANIVERSÁRIOS - CHECAR!
+
+    #verificar aniversários diariamente
+    await check_birthdays()
+    #agendar a verificação de aniversários diariamente
+    while True:
+        now = datetime.datetime.now(datetime.UTC)
+        next_check = datetime.datetime(now.year, now.month, now.day, 0, 0, 0) + datetime.timedelta(days=1)
+        await discord.utils.sleep_until(next_check)
+        await check_birthdays()
+        
+
         
 
 client.run(SECRET_TOKEN)
