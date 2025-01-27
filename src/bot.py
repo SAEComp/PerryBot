@@ -340,32 +340,31 @@ async def on_message(ctx):
     if ctx.author == client.user:
         return
 
-    # if ctx.content.lower() == 'uepa':
-    #     response = "Selecione uma das opções abaixo para definir seu ano de ingresso: \n\n Você pode escolher mais de um ano \n\n Caso o seu ano não esteja presente na lista abaixo mande mensagem para alguem da "
+    if ctx.content.lower() == 'uepa':
+         response = "Selecione uma das opções abaixo para definir seu ano de ingresso: \n\n Você pode escolher mais de um ano \n\n Caso o seu ano não esteja presente na lista abaixo mande mensagem para alguem da "
+         # mencionar saecomp
+         role_storage = None
+         for role in ctx.author.roles:
+             if role.name == "SaeComp":
+                 role_storage = role
 
-    #     # mencionar saecomp
-    #     role_storage = None
-    #     for role in ctx.author.roles:
-    #         if role.name == "SaeComp":
-    #             role_storage = role
+         response += f"{role_storage.mention} \n\n"
 
-    #     response += f"{role_storage.mention} \n\n"
+         for i, emoji in enumerate(escolher_ano_emojis):
+             if (i == len(escolher_ano_emojis)-1):
+                 break
 
-    #     for i, emoji in enumerate(escolher_ano_emojis):
-    #         if (i == len(escolher_ano_emojis)-1):
-    #             break
+             response += f"  {emoji}  "
 
-    #         response += f"  {emoji}  "
+         response += "\n\n"
 
-    #     response += "\n\n"
+         last_emoji = escolher_ano_emojis[-1]
 
-    #     last_emoji = escolher_ano_emojis[-1]
+         response += f"{last_emoji} Outro curso."
 
-    #     response += f"{last_emoji} Outro curso."
-
-    #     message = await ctx.channel.send(response)
-    #     for emoji in escolher_ano_emojis:
-    #         await message.add_reaction(emoji)
+         message = await ctx.channel.send(response)
+         for emoji in escolher_ano_emojis:
+             await message.add_reaction(emoji)
 
     # greetings
     if ctx.content.lower() == "oi perry":
