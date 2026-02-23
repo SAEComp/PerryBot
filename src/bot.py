@@ -54,6 +54,7 @@ escolher_ano_emojis = [
     "<:023_ano:1068282529494343730>",
     "<:024_ano:1198973565169582100>",
     "<:025_ano:1333443477211709493>",
+    "<:026_ano:1475503612368126106>",
     "<:nenhum_ano:938881567810527282>"
 ]
 
@@ -67,6 +68,7 @@ anos_roles_id = [
     "1068282004401049692",  # 023
     "1198798194038030336",  # 024
     "1333440391697137685",  # 025
+    "1475504116774994082",  # 026
     "827227117866975262"    # Nao eng comper
 ]
 
@@ -80,7 +82,8 @@ anos_map_from_roles = {
     escolher_ano_emojis[6]: anos_roles_id[6],
     escolher_ano_emojis[7]: anos_roles_id[7],
     escolher_ano_emojis[8]: anos_roles_id[8],
-    escolher_ano_emojis[9]: anos_roles_id[9]
+    escolher_ano_emojis[9]: anos_roles_id[9],
+    escolher_ano_emojis[10]: anos_roles_id[10]
 }
 
 
@@ -340,31 +343,35 @@ async def on_message(ctx):
     if ctx.author == client.user:
         return
 
-   # if ctx.content.lower() == 'uepa':
-    #     response = "Selecione uma das opções abaixo para definir seu ano de ingresso: \n\n Você pode escolher mais de um ano \n\n Caso o seu ano não esteja presente na lista abaixo mande mensagem para alguem da "
-         # mencionar saecomp
-     #    role_storage = None
-      #   for role in ctx.author.roles:
-       #      if role.name == "SaeComp":
-        #         role_storage = role
+    if ctx.content.lower() == 'uepa':
+         response = "Selecione uma das opções abaixo para definir seu ano de ingresso: \n\n Você pode escolher mais de um ano \n\n Caso o seu ano não esteja presente na lista abaixo mande mensagem para:\n\n"
 
-    #     response += f"{role_storage.mention} \n\n"
+         SEU_ID = 525006600671592499 #ID Valim
+         response += f"<@{SEU_ID}>\n\n"
+         message = await ctx.channel.send(response)
+    
+         role_storage = None
+         for role in ctx.author.roles:
+             if role.name == "SaeComp":
+                 role_storage = role
 
-    #     for i, emoji in enumerate(escolher_ano_emojis):
-     #        if (i == len(escolher_ano_emojis)-1):
-    #             break
+         response += f"{role_storage.mention} \n\n"
 
-     #        response += f"  {emoji}  "
+         for i, emoji in enumerate(escolher_ano_emojis):
+             if (i == len(escolher_ano_emojis)-1):
+                 break
 
-    #     response += "\n\n"
+             response += f"  {emoji}  "
 
-     #    last_emoji = escolher_ano_emojis[-1]
+         response += "\n\n"
 
-     #    response += f"{last_emoji} Outro curso."
+         last_emoji = escolher_ano_emojis[-1]
 
-     #    message = await ctx.channel.send(response)
-     #    for emoji in escolher_ano_emojis:
-      #       await message.add_reaction(emoji)
+         response += f"{last_emoji} Outro curso."
+
+         message = await ctx.channel.send(response)
+         for emoji in escolher_ano_emojis:
+             await message.add_reaction(emoji)
 
     # greetings
     if ctx.content.lower() == "oi perry":
