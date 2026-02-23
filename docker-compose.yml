@@ -1,0 +1,7 @@
+version: "3.8"
+
+services:
+  perry:
+    build: .
+    container_name: perry
+    restart: always
